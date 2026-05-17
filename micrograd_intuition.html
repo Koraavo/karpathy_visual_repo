@@ -1,0 +1,3346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradients for Humans 🧠</title>
+<style>
+:root{
+  --bg:#07070f;--card:#11111e;--card2:#18182a;--border:#252540;
+  --accent:#7c3aed;--acc2:#a855f7;--success:#10b981;--err:#ef4444;
+  --warn:#f59e0b;--text:#e2e8f0;--muted:#64748b;--code:#1a1a30;
+  --ch1:#7c3aed;--ch2:#2563eb;--ch3:#dc2626;--ch4:#16a34a;
+  --ch5:#d97706;--ch6:#0891b2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7}
+/* header */
+header{background:linear-gradient(135deg,#12121e,#1a0a30);border-bottom:1px solid var(--border);padding:1.5rem 2rem;text-align:center}
+header h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#a855f7,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{color:var(--muted);margin-top:.3rem;font-size:1rem}
+/* progress */
+#prog-bar-wrap{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.5rem;align-items:center;justify-content:center;flex-wrap:wrap}
+.pdot{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--muted);transition:.3s;cursor:pointer}
+.pdot:hover{border-color:var(--accent);color:var(--acc2);transform:scale(1.15)}
+.pdot.done{background:var(--success);border-color:var(--success);color:#fff;transform:scale(1.1)}
+.pdot.active{border-color:var(--accent);color:var(--acc2);box-shadow:0 0 12px #7c3aed44}
+.pline{width:24px;height:2px;background:var(--border)}
+#score-bar{background:var(--card);border-bottom:1px solid var(--border);padding:.5rem 2rem;text-align:center;font-size:.9rem;color:var(--muted)}
+#score-bar span{color:var(--acc2);font-weight:700;font-size:1.1rem}
+/* main */
+main{max-width:860px;margin:0 auto;padding:2rem 1rem 5rem}
+/* chapter */
+.ch{margin-bottom:2.5rem;border-radius:16px;border:1px solid var(--border);overflow:hidden;transition:.3s}
+.ch.locked{opacity:.35;pointer-events:none;filter:grayscale(.9)}
+.ch-header{padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.ch-icon{font-size:2rem;line-height:1}
+.ch-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.7}
+.ch-title{font-size:1.15rem;font-weight:700;margin-top:.1rem}
+.ch-body{padding:1.5rem;background:var(--card)}
+/* story box */
+.story{background:linear-gradient(135deg,#1a1030,#101a30);border:1px solid #3d2d60;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;position:relative}
+.story::before{content:'💬';position:absolute;top:-14px;left:16px;font-size:1.4rem;background:var(--card);padding:0 4px}
+.story h3{color:#c084fc;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.story p{font-size:.98rem;margin-bottom:.5rem}
+.story p:last-child{margin-bottom:0}
+.story strong{color:#fbbf24}
+/* insight box */
+.insight{background:linear-gradient(135deg,#0d2018,#0d1a2a);border:1px solid #1d5c3a;border-radius:10px;padding:1rem 1.25rem;margin:1rem 0;display:flex;gap:.75rem;align-items:flex-start}
+.insight-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem}
+.insight-text{font-size:.95rem}
+.insight-text strong{color:var(--success)}
+/* formula */
+.formula{background:var(--code);border-radius:8px;padding:.75rem 1.1rem;font-family:monospace;font-size:.95rem;margin:.6rem 0;border-left:3px solid var(--accent);white-space:pre-wrap}
+.formula .hi{color:#fbbf24;font-weight:700}
+.formula .res{color:#34d399;font-weight:700}
+/* demo */
+.demo{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1.25rem 0}
+.demo-title{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.75rem;font-weight:700}
+canvas{background:#0d0d1f;border-radius:8px;display:block;width:100%;max-width:100%}
+/* sliders */
+.srow{display:flex;align-items:center;gap:.75rem;margin:.4rem 0;font-size:.92rem}
+.srow label{min-width:80px;color:var(--muted)}
+.srow input[type=range]{flex:1;accent-color:var(--accent)}
+.srow .sv{min-width:60px;text-align:right;font-family:monospace;font-weight:700;color:var(--acc2)}
+/* output cards */
+.ocards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem;margin-top:.75rem}
+.ocard{background:var(--code);border-radius:8px;padding:.75rem;text-align:center}
+.ocard .ol{color:var(--muted);font-size:.78rem;margin-bottom:.2rem}
+.ocard .ov{font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--acc2)}
+.ocard.highlight .ov{color:var(--success)}
+/* chain demo */
+.chain{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.75rem 0}
+.chain-node{background:var(--code);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-family:monospace;font-size:.92rem;text-align:center}
+.chain-node .cn-label{font-size:.72rem;color:var(--muted)}
+.chain-node .cn-val{color:var(--acc2);font-weight:700}
+.chain-node.changed .cn-val{color:var(--success)}
+.chain-arrow{color:var(--warn);font-size:1.1rem;font-weight:700}
+.chain-rate{text-align:center;font-size:.75rem;color:var(--warn)}
+/* quiz */
+.quiz{background:linear-gradient(135deg,#16102a,#0f1624);border:1px solid #2d2050;border-radius:10px;padding:1.25rem;margin-top:1.25rem}
+.quiz h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.q{margin-bottom:1.2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)}
+.q:last-of-type{border-bottom:none;margin-bottom:.5rem;padding-bottom:0}
+.q-text{margin-bottom:.6rem;font-size:.97rem}
+.q-text code{background:var(--code);padding:.1em .4em;border-radius:4px;font-size:.9em;color:var(--acc2)}
+/* choice */
+.choices{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem}
+.choice{background:var(--code);border:1px solid var(--border);border-radius:6px;padding:.35rem .85rem;cursor:pointer;font-size:.9rem;transition:.2s;user-select:none}
+.choice:hover{border-color:var(--accent)}
+.choice.sel{border-color:var(--acc2);background:#1a0a30}
+.choice.ok{border-color:var(--success);background:#0d2018;color:var(--success)}
+.choice.bad{border-color:var(--err);background:#2a0d0d;color:var(--err)}
+/* number input */
+.q-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.4rem}
+.qi{background:var(--code);border:1px solid var(--border);border-radius:6px;padding:.45rem .75rem;color:var(--text);font-family:monospace;font-size:.95rem;width:120px;outline:none}
+.qi:focus{border-color:var(--accent)}
+.qi.ok{border-color:var(--success);background:#0d2018}
+.qi.bad{border-color:var(--err);background:#2a0d0d}
+/* buttons */
+button{cursor:pointer;border:none;border-radius:7px;font-size:.88rem;font-weight:600;padding:.4rem 1rem;transition:.2s}
+.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:var(--acc2)}
+.btn-s{background:var(--card2);color:var(--text);border:1px solid var(--border)}.btn-s:hover{border-color:var(--accent)}
+.btn-sm{font-size:.8rem;padding:.3rem .7rem}
+.fb{margin-top:.4rem;font-size:.86rem;border-radius:6px;padding:.35rem .7rem;display:none}
+.fb.show{display:block}
+.fb.ok{background:#0d2018;border:1px solid var(--success);color:var(--success)}
+.fb.bad{background:#2a0d0d;border:1px solid var(--err);color:var(--err)}
+.fb.hint{background:#1a1500;border:1px solid var(--warn);color:var(--warn)}
+.btn-reveal{background:#1a1200;color:var(--warn);border:1px solid var(--warn);font-size:.78rem;padding:.25rem .6rem;border-radius:5px;display:none}
+.btn-reveal.show{display:inline-block}
+.cont-btn{width:100%;padding:.7rem;margin-top:1rem;font-size:.95rem;display:block;background:linear-gradient(135deg,var(--accent),var(--acc2));color:#fff;border-radius:8px}
+.cont-btn.show{display:block}
+/* gradient arrow demo */
+#grad-canvas{border-radius:8px;background:#0a0a1a}
+/* GD canvas */
+#gd-canvas{border-radius:8px;background:#0a0a1a}
+/* misc */
+.tag{display:inline-block;background:var(--accent);color:#fff;border-radius:10px;padding:.1em .6em;font-size:.72rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
+.math-bridge{background:#0f1a0f;border:1px solid #1d4d1d;border-radius:8px;padding:.85rem 1rem;margin:.6rem 0;font-size:.92rem}
+.math-bridge .bridge-title{color:var(--success);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
+hr.div{border:none;border-top:1px solid var(--border);margin:1rem 0}
+/* final */
+#finale{text-align:center;padding:2.5rem 1rem;display:none}
+#finale.show{display:block}
+#finale h2{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#a855f7,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+
+/* ── utility cards ── */
+.card{background:var(--code);border-radius:8px;padding:.65rem 1rem;margin:.6rem 0}
+.card-green{background:#0d2018;border:1px solid #1d5c3a;border-radius:8px;padding:.6rem}
+.card-red{background:#2a0d0d;border:1px solid #7f1d1d;border-radius:8px;padding:.6rem}
+.card-yellow{background:#1a1a0a;border:1px solid #4a4a1a;border-radius:8px;padding:.6rem}
+.card-purple{background:#1d0a3a;border:1px solid #6d28d9;border-radius:8px;padding:.6rem}
+.card-blue{background:#0a1520;border:1px solid #1d4d6a;border-radius:10px;padding:1.1rem 1.3rem}
+/* ── step blocks (left-border) ── */
+.step{padding:.5rem .9rem;border-radius:0 8px 8px 0;margin:.65rem 0}
+.step-blue{border-left:3px solid #3b82f6;background:#0d0d1a}
+.step-green{border-left:3px solid #10b981;background:#0d1a0d}
+.step-purple{border-left:3px solid #a855f7;background:#0d0a1a}
+/* ── tag labels ── */
+.tag{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:.5rem}
+.tag-blue{color:#38bdf8}.tag-green{color:#10b981}.tag-purple{color:#a855f7}.tag-yellow{color:#fbbf24}
+/* ── layout ── */
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+/* ── code display ── */
+.code-box{background:var(--code);border-radius:8px;padding:.8rem 1rem;font-family:monospace;font-size:.85rem;line-height:1.9;color:#94a3b8}
+
+/* ── chapter nav bar ── */
+.ch-nav-btn{background:var(--card2);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.78rem;padding:.3rem .75rem;cursor:pointer;transition:.2s;white-space:nowrap}
+.ch-nav-btn:hover{border-color:var(--accent);color:var(--acc2);background:#1a0a30}
+.ch-nav-btn.active{border-color:var(--accent);color:#fff;background:var(--accent)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧠 Gradients for Humans</h1>
+  <p>Derivatives, partial derivatives &amp; gradients — explained with stories, not equations</p>
+</header>
+
+<div id="prog-bar-wrap">
+  <div class="pdot active" id="pd0" onclick="jumpTo(1)" title="Ch 1 — Derivative">1</div><div class="pline"></div>
+  <div class="pdot" id="pd1" onclick="jumpTo(2)" title="Ch 2 — Nudge Predictor">2</div><div class="pline"></div>
+  <div class="pdot" id="pd2" onclick="jumpTo(3)" title="Ch 3 — Partial Derivatives">3</div><div class="pline"></div>
+  <div class="pdot" id="pd3" onclick="jumpTo(4)" title="Ch 4 — Gradient">4</div><div class="pline"></div>
+  <div class="pdot" id="pd4" onclick="jumpTo(5)" title="Ch 5 — Chain Rule">5</div><div class="pline"></div>
+  <div class="pdot" id="pd5" onclick="jumpTo(6)" title="Ch 6 — Gradient Descent">6</div><div class="pline"></div>
+  <div class="pdot" id="pd6" onclick="jumpTo(7)" title="Ch 7 — Backprop">🧠</div>
+</div>
+<div id="score-bar">Your score: <span id="sc">0</span> / 120 pts</div>
+
+<main>
+<div id="ch-nav" style="position:sticky;top:0;z-index:99;background:var(--bg);border-bottom:1px solid var(--border);padding:.5rem 1rem;display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem">
+  <button class="ch-nav-btn" onclick="jumpTo(1)">1 · Derivative</button>
+  <button class="ch-nav-btn" onclick="jumpTo(2)">2 · Nudge</button>
+  <button class="ch-nav-btn" onclick="jumpTo(3)">3 · Partial ∂</button>
+  <button class="ch-nav-btn" onclick="jumpTo(4)">4 · Gradient</button>
+  <button class="ch-nav-btn" onclick="jumpTo(5)">5 · Chain Rule</button>
+  <button class="ch-nav-btn" onclick="jumpTo(6)">6 · Descent</button>
+  <button class="ch-nav-btn" onclick="jumpTo(7)">7 · Backprop</button>
+  <button class="ch-nav-btn" onclick="jumpTo(8)">8 · Expr Backprop</button>
+  <button class="ch-nav-btn" onclick="jumpTo(9)">9 · MLP</button>
+  <button class="ch-nav-btn" onclick="jumpTo(10)">10 · Dataset</button>
+  <button class="ch-nav-btn" onclick="jumpTo(11)">11 · Training Loop</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 1 — WHAT IS A DERIVATIVE?
+══════════════════════════════════════════ -->
+<div class="ch" id="ch1" style="border-color:#3d1f70">
+  <div class="ch-header" style="background:linear-gradient(135deg,#1a0a30,#120820)">
+    <div class="ch-icon">📈</div>
+    <div>
+      <div class="ch-label" style="color:#a855f7">Chapter 1</div>
+      <div class="ch-title">What Is a Derivative? (The Speedometer Idea)</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div style="background:linear-gradient(135deg,#1a0a2e,#0a1a2e);border:2px solid #a855f7;border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.25rem">
+      <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#a855f7;font-weight:700;margin-bottom:.5rem">🎯 Why are we learning this?</div>
+      <p style="margin:0 0 .5rem;font-size:.95rem">A neural network is just a big math function with thousands of <strong>weights</strong> (numbers). During training it makes predictions and measures how wrong it is — that wrongness is called the <strong>loss</strong>.</p>
+      <p style="margin:0 0 .5rem;font-size:.95rem">The goal is to <strong>reduce the loss to zero</strong> (or as close as possible). To do that, we need to know: for each weight, if I change it a little, does the loss go up or down?</p>
+      <p style="margin:0;font-size:.95rem"><strong>That question is exactly what a derivative answers.</strong> The slope at any point tells you the direction and speed of change — and that's all you need to push every weight in the right direction. This is the whole engine of machine learning.</p>
+      <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px;background:#2a0d0d;border:1px solid #7f1d1d;border-radius:8px;padding:.6rem;text-align:center;font-size:.83rem">
+          <div style="color:#ef4444;font-weight:700">slope &gt; 0</div>
+          <div style="color:#94a3b8;font-size:.78rem">you're RIGHT of valley</div>
+          <div style="color:#ef4444">→ decrease w</div>
+          <div style="font-family:monospace;font-size:.75rem;color:#64748b;margin-top:.2rem">w − lr×(+slope) = smaller w</div>
+        </div>
+        <div style="flex:1;min-width:160px;background:#1a1a0a;border:1px solid #4a4a1a;border-radius:8px;padding:.6rem;text-align:center;font-size:.83rem">
+          <div style="color:#fbbf24;font-weight:700">slope = 0</div>
+          <div style="color:#94a3b8;font-size:.78rem">you're AT the valley</div>
+          <div style="color:#fbbf24">→ stop here ✓</div>
+          <div style="font-family:monospace;font-size:.75rem;color:#64748b;margin-top:.2rem">w − lr×0 = same w</div>
+        </div>
+        <div style="flex:1;min-width:160px;background:#0d2018;border:1px solid #1d5c3a;border-radius:8px;padding:.6rem;text-align:center;font-size:.83rem">
+          <div style="color:#10b981;font-weight:700">slope &lt; 0</div>
+          <div style="color:#94a3b8;font-size:.78rem">you're LEFT of valley</div>
+          <div style="color:#10b981">→ increase w</div>
+          <div style="font-family:monospace;font-size:.75rem;color:#64748b;margin-top:.2rem">w − lr×(−slope) = bigger w</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="story">
+      <h3>The Story 🚗</h3>
+      <p>Imagine you're on a road trip. Your GPS shows <strong>total distance traveled</strong> over time. At t=2h you've gone 60km. At t=3h, you've gone 120km. That's 60km in 1 hour — average speed of 60km/h.</p>
+      <p>But what if you want your speed <strong>right now</strong>, at this exact moment? Not average. Instantaneous. That's what your speedometer shows. And that's exactly what a <strong>derivative</strong> is — the instantaneous rate of change.</p>
+      <p>In math: if f(x) is your distance and x is time, <strong>f'(x) is your speed right now</strong>.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">💡</div>
+      <div class="insight-text">
+        The derivative f'(x) answers: <strong>"If I nudge x by a tiny amount, how much does f(x) change per unit of nudge?"</strong><br>
+        Positive → f is going UP at this x. &nbsp; Negative → going DOWN. &nbsp; Zero → flat (peak or valley).
+      </div>
+    </div>
+
+    <div class="formula">f'(x) ≈ <span class="hi">[f(x + h) − f(x)] / h</span>   for very small h
+
+Example: f(x) = x²
+f(3)   = 9
+f(3.001) = 9.006001
+<span class="res">f'(3) ≈ (9.006001 − 9) / 0.001 = 6.001 ≈ 6</span>
+Analytic formula: f'(x) = 2x → f'(3) = 6 ✓</div>
+
+    <div class="demo">
+      <div class="demo-title">🎮 Play: Ball on a curve — f(x) = x²</div>
+      <canvas id="cv1" width="800" height="220"></canvas>
+      <div class="srow" style="margin-top:.6rem">
+        <label>Move x →</label>
+        <input type="range" id="sl_ch1" min="-3" max="3" step="0.1" value="2" oninput="ch1Update()">
+        <span class="sv" id="sl_ch1v">2.0</span>
+      </div>
+      <div class="ocards">
+        <div class="ocard"><div class="ol">x</div><div class="ov" id="ch1_x">-</div></div>
+        <div class="ocard"><div class="ol">f(x) = x²</div><div class="ov" id="ch1_fx">-</div></div>
+        <div class="ocard"><div class="ol">f'(x) = 2x (slope)</div><div class="ov" id="ch1_dfx">-</div></div>
+        <div class="ocard"><div class="ol">Ball rolling…</div><div class="ov" id="ch1_dir">-</div></div>
+      </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:.5rem">🟡 yellow line = tangent (slope) at that point · 🔴 red dot = the ball</p>
+    </div>
+
+    
+      <div style="background:linear-gradient(135deg,#0f1020,#0a1f18);border:2px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+        <div class="tag tag-green" style="margin-bottom:.7rem">🧮 concrete walkthrough — numbers in, numbers out</div>
+        
+        <p style="margin:0 0 .5rem;color:#94a3b8">Function: <code>f(x) = x²</code> &nbsp; You're at <code>x = 3</code>. What is the slope and what does a tiny nudge do?</p>
+        <div class="code-box" style="margin:.5rem 0;line-height:2.1">
+          f(3) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 3² = <span style="color:#a855f7">9</span><br>
+          f(3.01) &nbsp;&nbsp;&nbsp;= 3.01² = <span style="color:#a855f7">9.0601</span><br>
+          change &nbsp;&nbsp;&nbsp;&nbsp;= 9.0601 − 9 = <span style="color:#fbbf24">0.0601</span><br>
+          slope &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= change / h = 0.0601 / 0.01 = <span style="color:#10b981;font-weight:700">6.01 ≈ 6</span><br>
+          exact &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2x = 2×3 = <span style="color:#10b981;font-weight:700">6 ✓</span>
+        </div>
+        <p style="margin:.4rem 0 0;font-size:.85rem;color:#64748b">The slope 6 tells you: at x=3, every 0.01 nudge to x changes f by about 6×0.01 = 0.06. The smaller h is, the more accurate this estimate.</p>
+      </div>
+
+    <div class="math-bridge">
+      <div class="bridge-title">🔗 Real math connection</div>
+      For f(x) = 3x² − 4x + 5 (from the Karpathy video), the derivative is f'(x) = 6x − 4.<br>
+      At x=3: slope = 14 (steeply uphill). At x=⅔: slope = 0 (minimum — the valley).
+    </div>
+
+
+    <div class="demo" style="border-color:#3d1f70">
+      <div class="demo-title">🏔️ What the SIGN of slope tells you</div>
+      <canvas id="cv_signs" width="700" height="200"></canvas>
+      <div class="grid-3" style="margin-top:.75rem;text-align:center;font-size:.88rem">
+        <div style="background:#0d2018;border:1px solid #1d5c3a;border-radius:8px;padding:.6rem">
+          <div style="font-size:1.5rem">⬆️</div>
+          <div style="color:#10b981;font-weight:700">slope &gt; 0</div>
+          <div style="color:var(--muted)">Increase x → f goes UP</div>
+          <div style="font-family:monospace;color:#a855f7;font-size:.82rem">f(x+h) &gt; f(x)</div>
+        </div>
+        <div style="background:#1a1a0a;border:1px solid #4a4a1a;border-radius:8px;padding:.6rem">
+          <div style="font-size:1.5rem">➡️</div>
+          <div style="color:#fbbf24;font-weight:700">slope = 0</div>
+          <div style="color:var(--muted)">Increase x → f flat</div>
+          <div style="font-family:monospace;color:#a855f7;font-size:.82rem">f(x+h) ≈ f(x)</div>
+        </div>
+        <div style="background:#2a0d0d;border:1px solid #5c1d1d;border-radius:8px;padding:.6rem">
+          <div style="font-size:1.5rem">⬇️</div>
+          <div style="color:#ef4444;font-weight:700">slope &lt; 0</div>
+          <div style="color:var(--muted)">Increase x → f goes DOWN</div>
+          <div style="font-family:monospace;color:#a855f7;font-size:.82rem">f(x+h) &lt; f(x)</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem;background:var(--code);border-radius:8px;padding:.85rem 1rem">
+        <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem;font-weight:700">🎿 Try it — pick a slope and nudge size:</div>
+        <div class="srow"><label>slope =</label><input type="range" id="sg_slope" min="-10" max="10" step="0.5" value="-7" oninput="slopeSignUpdate()"><span class="sv" id="sg_sv">−7</span></div>
+        <div class="srow"><label>nudge h =</label><input type="range" id="sg_h" min="0.01" max="1" step="0.01" value="0.1" oninput="slopeSignUpdate()"><span class="sv" id="sg_hv">0.10</span></div>
+        <div style="margin-top:.6rem;font-family:monospace;font-size:.95rem" id="sg_result">-</div>
+      </div>
+    </div>
+
+    <div class="insight" style="border-color:#1d4d3a;background:#0a1f18">
+      <div class="insight-icon">🧭</div>
+      <div class="insight-text">
+        <strong>The one rule that drives all of machine learning:</strong><br><br>
+        <code style="font-size:1rem;color:#fbbf24">x_new = x &minus; learning_rate &times; slope</code><br><br>
+        The <strong>minus sign</strong> is everything. It automatically flips the direction so you always move <em>downhill</em>:
+        <ul style="margin:.5rem 0 0;padding-left:1.2rem;line-height:1.9">
+          <li>slope = <span style="color:#ef4444">−7</span> (left of valley) → x_new = x − (−7×step) = x <span style="color:#10b981">+ 7×step</span> → x increases → moves RIGHT toward valley ✓</li>
+          <li>slope = <span style="color:#10b981">+7</span> (right of valley) → x_new = x − (7×step) = x <span style="color:#ef4444">− 7×step</span> → x decreases → moves LEFT toward valley ✓</li>
+          <li>slope = <span style="color:#fbbf24">0</span> → x_new = x − 0 = x &nbsp;→ already at the bottom, don't move ✓</li>
+        </ul>
+        <br>In PyTorch this is literally: <code>weight.data -= learning_rate * weight.grad</code>
+      </div>
+    </div>
+
+    <div class="demo" style="border-color:#1d4d3a">
+      <div class="demo-title">🧭 Gradient Descent Step — see the minus-sign rule in action</div>
+      <div class="grid-2" style="margin-bottom:.75rem">
+        <div>
+          <div class="srow"><label>current x =</label><input type="range" id="gd_x" min="-5" max="5" step="0.1" value="3" oninput="gdUpdate()"><span class="sv" id="gd_xv">3.0</span></div>
+          <div class="srow"><label>slope at x =</label><input type="range" id="gd_s" min="-10" max="10" step="0.5" value="-7" oninput="gdUpdate()"><span class="sv" id="gd_sv">−7.0</span></div>
+          <div class="srow"><label>learning rate =</label><input type="range" id="gd_lr" min="0.01" max="0.5" step="0.01" value="0.1" oninput="gdUpdate()"><span class="sv" id="gd_lrv">0.10</span></div>
+        </div>
+        <div style="background:var(--code);border-radius:8px;padding:.8rem;font-family:monospace;font-size:.88rem;line-height:1.7" id="gd_box">-</div>
+      </div>
+      <canvas id="cv_gd" width="660" height="120"></canvas>
+      <p style="color:var(--muted);font-size:.8rem;margin-top:.4rem">🔴 current x &nbsp; 🟢 new x after one step &nbsp; dashed = direction of move</p>
+    </div>
+
+    <div class="quiz">
+      <h3>🎯 Check Your Understanding</h3>
+
+      <div class="q" id="q1">
+        <div class="q-text">Q1. If <code>f'(x) = −7</code> at some point, what happens to <code>f(x)</code> when you increase x by a small amount?</div>
+        <div class="choices" id="q1c">
+          <span class="choice" onclick="pick('q1','up',this)">⬆️ Goes up</span>
+          <span class="choice" onclick="pick('q1','down',this)">⬇️ Goes down</span>
+          <span class="choice" onclick="pick('q1','flat',this)">↔️ Stays flat</span>
+        </div>
+        <div class="q-row">
+          <button class="btn-p btn-sm" onclick="checkChoice('q1','down','Correct! Negative slope = function is going downhill at this point.')">Check</button>
+          <button class="btn-reveal btn-sm" id="q1r" onclick="revealChoice('q1','down','Negative derivative → f is decreasing. The slope is pointing downward.')">Show</button>
+        </div>
+        <div class="fb" id="q1f"></div>
+      </div>
+
+      <div class="q" id="q2">
+        <div class="q-text">Q2. <code>f(x) = x²</code>. The slope at x=4 is 2×4=<strong>8</strong>. If I nudge x by h=0.01, how much does f(x) approximately change?<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: change ≈ slope × h</span></div>
+        <div class="q-row">
+          <input class="qi" id="q2i" type="number" step="0.001" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q2',0.08,0.005,'slope × h = 8 × 0.01 = 0.08')">
+          <button class="btn-p btn-sm" onclick="checkNum('q2',0.08,0.005,'slope × h = 8 × 0.01 = 0.08')">Check</button>
+          <button class="btn-reveal btn-sm" id="q2r" onclick="revealNum('q2',0.08,'slope × h = 8 × 0.01 = 0.08')">Show</button>
+        </div>
+        <div class="fb" id="q2f"></div>
+      </div>
+
+      <button class="cont-btn" id="cont1" onclick="unlock(2)">Next: The Prediction Power of Slopes →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 2 — THE NUDGE PREDICTOR
+══════════════════════════════════════════ -->
+<div class="ch locked" id="ch2" style="border-color:#1d3a70">
+  <div class="ch-header" style="background:linear-gradient(135deg,#0a1530,#101a40)">
+    <div class="ch-icon">🔮</div>
+    <div>
+      <div class="ch-label" style="color:#60a5fa">Chapter 2</div>
+      <div class="ch-title">Slopes Predict the Future</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 🧙</h3>
+      <p>Here's the <strong>magic trick</strong>: once you know the slope at a point, you can predict how f changes — without computing f again!</p>
+      <p>Imagine a car going 80 km/h. After 0.1 hours, you predict it's traveled about <strong>80 × 0.1 = 8 km</strong>. This is the exact same logic as using the derivative to predict function changes.</p>
+      <p>If slope = 6 at x=3, and you nudge x by h=0.01, then <strong>f(x+h) − f(x) ≈ 6 × 0.01 = 0.06</strong>. This is incredibly close to the actual answer — and this is WHY derivatives are so powerful in neural networks!</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">✨</div>
+      <div class="insight-text">
+        <strong>The golden formula:</strong> f(x+h) ≈ f(x) + f'(x) × h<br>
+        This is called "linear approximation" and it's the entire foundation of gradient descent.
+      </div>
+    </div>
+
+    <div class="formula">If f'(x) = slope, then for small h:
+  Predicted change = <span class="hi">slope × h</span>
+  Actual change    = <span class="res">f(x+h) − f(x)</span>
+  
+These are almost equal when h is small! The smaller h, the more accurate.</div>
+
+
+    <div class="story" style="margin-top:0;border-color:#1d3a1d">
+      <h3>🚗 Wait — you just re-derived the derivative!</h3>
+      <p>Your car insight: <strong>speed = distance / time</strong></p>
+      <p>The change in f is the "distance". h is the "time". So:</p>
+    </div>
+
+    <div style="background:#0d1a0d;border:1px solid #1d5c3a;border-radius:10px;padding:1.1rem 1.4rem;margin:.75rem 0">
+      <table style="width:100%;border-collapse:collapse;font-size:.95rem">
+        <tr style="border-bottom:1px solid #1d5c3a">
+          <th style="padding:.5rem;text-align:left;color:#64748b;font-size:.8rem">Car world</th>
+          <th style="padding:.5rem;text-align:left;color:#64748b;font-size:.8rem">Math world</th>
+        </tr>
+        <tr style="border-bottom:1px solid #1d2a1d">
+          <td style="padding:.5rem;font-family:monospace">distance traveled</td>
+          <td style="padding:.5rem;font-family:monospace;color:#a855f7">f(x+h) − f(x)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1d2a1d">
+          <td style="padding:.5rem;font-family:monospace">time elapsed</td>
+          <td style="padding:.5rem;font-family:monospace;color:#a855f7">h</td>
+        </tr>
+        <tr>
+          <td style="padding:.5rem;font-family:monospace;color:#fbbf24;font-weight:700">speed right now</td>
+          <td style="padding:.5rem;font-family:monospace;color:#fbbf24;font-weight:700">f'(x) = [f(x+h)−f(x)] / h</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">💡</div>
+      <div class="insight-text">
+        <strong>Three forms — all the same idea:</strong><br>
+        <span style="font-family:monospace;display:block;margin:.4rem 0;color:#fbbf24">speed = distance / time</span>
+        <span style="font-family:monospace;display:block;margin:.4rem 0;color:#a855f7">f'(x) = [f(x+h) − f(x)] / h &nbsp;&nbsp;← definition of derivative</span>
+        <span style="font-family:monospace;display:block;margin:.4rem 0;color:#34d399">f(x+h) − f(x) ≈ f'(x) × h &nbsp;&nbsp;&nbsp;&nbsp;← rearranged (× both sides by h)</span>
+        The last line is linear approximation — it's just the first line rearranged!
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#0a1f18,#0a1520);border:2px solid #10b981;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+      <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#10b981;font-weight:700;margin-bottom:.6rem">💡 But why does predicting 0.06 actually matter?</div>
+      <p style="margin:0 0 .6rem;font-size:.94rem">The change prediction is not the end goal — it's the <strong>navigation tool</strong>. The goal is to bring loss → 0. Derivatives tell you <em>how</em>.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0">
+        <div style="background:#0d0d0d;border:1px solid #334155;border-radius:8px;padding:.7rem;font-size:.84rem">
+          <div style="color:#ef4444;font-weight:700;margin-bottom:.3rem">❌ Without derivatives</div>
+          <div style="color:#94a3b8">Guess random changes to each weight.<br>Hope loss goes down.<br>1000 weights = impossible.</div>
+        </div>
+        <div style="background:#0d1a10;border:1px solid #10b981;border-radius:8px;padding:.7rem;font-size:.84rem">
+          <div style="color:#10b981;font-weight:700;margin-bottom:.3rem">✅ With derivatives</div>
+          <div style="color:#94a3b8">For every weight: slope tells you<br>which direction reduces loss.<br>Move all 1000 weights correctly at once.</div>
+        </div>
+      </div>
+      <p style="margin:.5rem 0 .3rem;font-size:.88rem;color:#94a3b8">The loop that trains every neural network ever built:</p>
+      <div style="font-family:monospace;font-size:.85rem;background:#0d0d0d;border-radius:8px;padding:.75rem 1rem;line-height:1.9;color:#94a3b8">
+        <span style="color:#64748b">for</span> step <span style="color:#64748b">in</span> range(1000):<br>
+        &nbsp;&nbsp;loss = model(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569"># how wrong are we?</span><br>
+        &nbsp;&nbsp;<span style="color:#64748b">for</span> w <span style="color:#64748b">in</span> weights:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;slope = <span style="color:#fbbf24">∂loss/∂w</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569"># derivative: how does loss change if I nudge w?</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;w -= lr × slope&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569"># move w to reduce loss</span><br>
+        <span style="color:#10b981"># → loss gets smaller every step</span>
+      </div>
+      <p style="margin:.75rem 0 0;font-size:.88rem"><strong style="color:#fbbf24">The 0.06 is the guarantee</strong> — it says "nudging x by 0.01 will change loss by exactly ~0.06." Not guessing. The sign tells direction, the number tells how fast. Backprop computes this for <em>all weights simultaneously</em> in one pass.</p>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🔬 Watch [f(x+h)−f(x)] / h converge to f'(x) as h shrinks — f(x) = x²</div>
+      <div class="srow"><label>x =</label><input type="range" id="lim_x" min="-3" max="3" step="0.5" value="3" oninput="limUpdate()"><span class="sv" id="lim_xv">3.0</span></div>
+      <div style="overflow-x:auto;margin-top:.5rem">
+        <table style="width:100%;border-collapse:collapse;font-family:monospace;font-size:.88rem" id="lim_table">
+          <tr style="background:#1a1a30">
+            <th style="padding:.5rem;text-align:left;color:#64748b">h (nudge size)</th>
+            <th style="padding:.5rem;text-align:left;color:#a855f7">f(x+h)−f(x)</th>
+            <th style="padding:.5rem;text-align:left;color:#fbbf24">divide by h</th>
+            <th style="padding:.5rem;text-align:left;color:#34d399">true f'(x)=2x</th>
+            <th style="padding:.5rem;text-align:left;color:#64748b">error</th>
+          </tr>
+        </table>
+      </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:.5rem">👆 As h → 0, the "divide by h" column converges to the exact derivative. This IS the limit definition.</p>
+    </div>
+
+    <div class="formula">The official definition of the derivative:
+
+f'(x)  =  lim   <span class="hi">[f(x+h) − f(x)] / h</span>
+          h→0
+
+You built this from "speed = distance / time". 🎉</div>
+
+    <div class="demo">
+      <div class="demo-title">🔮 Nudge Predictor — f(x) = x³ − 2x + 1</div>
+      <div class="srow"><label>x =</label><input type="range" id="np_x" min="-2.5" max="2.5" step="0.1" value="1.5" oninput="nudgeUpdate()"><span class="sv" id="np_xv">1.5</span></div>
+      <div class="srow"><label>nudge h =</label><input type="range" id="np_h" min="0.001" max="0.5" step="0.001" value="0.1" oninput="nudgeUpdate()"><span class="sv" id="np_hv">0.100</span></div>
+      <div class="ocards">
+        <div class="ocard"><div class="ol">f(x)</div><div class="ov" id="np_fx">-</div></div>
+        <div class="ocard"><div class="ol">slope f'(x) = 3x²−2</div><div class="ov" id="np_dfx">-</div></div>
+        <div class="ocard"><div class="ol">🔮 Predicted change<br><small>slope × h</small></div><div class="ov" id="np_pred">-</div></div>
+        <div class="ocard highlight"><div class="ol">✅ Actual change<br><small>f(x+h) − f(x)</small></div><div class="ov" id="np_actual">-</div></div>
+        <div class="ocard"><div class="ol">Error %</div><div class="ov" id="np_err">-</div></div>
+      </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:.5rem">👆 Make h smaller — watch the prediction get more accurate!</p>
+    </div>
+
+    <div 
+      <div style="background:linear-gradient(135deg,#0f1020,#0a1f18);border:2px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+        <div class="tag tag-green" style="margin-bottom:.7rem">🧮 concrete walkthrough — numbers in, numbers out</div>
+        
+        <p style="margin:0 0 .5rem;color:#94a3b8">Function: <code>f(x) = x³ − 2x + 1</code> &nbsp; At <code>x = 2</code>, nudge by <code>h = 0.05</code>.</p>
+        <div class="code-box" style="margin:.5rem 0;line-height:2.1">
+          slope f'(x) = 3x² − 2 = 3×4 − 2 = <span style="color:#fbbf24">10</span><br>
+          predicted change &nbsp;= slope × h = 10 × 0.05 = <span style="color:#a855f7">0.50</span><br>
+          f(2) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 8 − 4 + 1 = 5<br>
+          f(2.05) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 8.615 − 4.1 + 1 = 5.515<br>
+          actual change &nbsp;&nbsp;&nbsp;= 5.515 − 5 = <span style="color:#10b981">0.515</span><br>
+          error &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= |0.515 − 0.50| = <span style="color:#34d399;font-weight:700">0.015 (tiny!) ✓</span>
+        </div>
+        <p style="margin:.4rem 0 0;font-size:.85rem;color:#64748b">The slope gave us 0.50 — the real answer was 0.515. That tiny error is why derivatives are powerful: they predict without having to evaluate the full function at every point.</p>
+      </div>
+
+    class="quiz">
+      <h3>🎯 Check Your Understanding</h3>
+
+      <div class="q" id="q3">
+        <div class="q-text">Q3. <code>f(x) = x²</code> has slope <code>f'(2) = 4</code>. If we nudge x from 2 to 2.05 (h=0.05), what is the <strong>predicted</strong> change in f?<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: predicted change = slope × h</span></div>
+        <div class="q-row">
+          <input class="qi" id="q3i" type="number" step="0.01" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q3',0.2,0.01,'slope × h = 4 × 0.05 = 0.20')">
+          <button class="btn-p btn-sm" onclick="checkNum('q3',0.2,0.01,'slope × h = 4 × 0.05 = 0.20')">Check</button>
+          <button class="btn-reveal btn-sm" id="q3r" onclick="revealNum('q3',0.2,'slope × h = 4 × 0.05 = 0.20')">Show</button>
+        </div>
+        <div class="fb" id="q3f"></div>
+      </div>
+
+      <div class="q" id="q4">
+        <div class="q-text">Q4. In neural network training, after backprop gives us <code>w.grad = −3</code> and we use <code>lr = 0.1</code>, we update <code>w</code>. How much does the loss change approximately?<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: Δw = −lr × grad = −0.1 × (−3) = +0.3. Then ΔLoss ≈ grad × Δw = (−3) × 0.3 = ?</span></div>
+        <div class="q-row">
+          <input class="qi" id="q4i" type="number" step="0.01" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q4',-0.9,0.05,'grad×Δw = −3 × 0.3 = −0.9 (loss DECREASES — good!)')">
+          <button class="btn-p btn-sm" onclick="checkNum('q4',-0.9,0.05,'grad×Δw = −3 × 0.3 = −0.9 (loss DECREASES — good!)')">Check</button>
+          <button class="btn-reveal btn-sm" id="q4r" onclick="revealNum('q4',-0.9,'Δloss ≈ −3 × 0.3 = −0.9. Negative = loss went DOWN!')">Show</button>
+        </div>
+        <div class="fb" id="q4f"></div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#0a1520,#0a1f18);border:1px solid #1d4d6a;border-radius:10px;padding:1.1rem 1.3rem;margin-top:1rem;font-size:.88rem;line-height:1.7">
+        <div class="tag tag-blue">🚗 Breaking it down — three clean steps</div>
+
+        <p style="margin:0 0 .6rem;color:#94a3b8">
+          <strong style="color:#e2e8f0">What we know:</strong>
+          <code style="color:#fbbf24">w.grad = −3</code> means the slope of loss is −3.
+          For every 1 unit w moves, loss moves −3. That's the definition:
+          <code style="color:#a855f7">grad = ΔLoss / Δw</code>
+        </p>
+
+        <div class="step step-blue">
+          <div style="color:#3b82f6;font-weight:700;font-size:.8rem;margin-bottom:.3rem">STEP 1 — Decide how much to move w</div>
+          <div style="color:#94a3b8">We don't take a full step of 1 — too risky. We scale down by lr:</div>
+          <div style="font-family:monospace;margin:.4rem 0;color:#e2e8f0">Δw = −lr × grad = −0.1 × (−3) = <span style="color:#10b981;font-weight:700">+0.3</span></div>
+          <div style="color:#64748b;font-size:.82rem">w moves forward 0.3 units. The minus sign ensures we go downhill.</div>
+        </div>
+
+        <div class="step step-purple">
+          <div style="color:#a855f7;font-weight:700;font-size:.8rem;margin-bottom:.3rem">STEP 2 — Ask: what happens to loss when w moves 0.3?</div>
+          <div style="color:#94a3b8">Now use the car formula: rate × movement = result</div>
+          <div style="font-family:monospace;margin:.4rem 0;color:#e2e8f0;line-height:1.9">
+            grad &nbsp;&nbsp;= ΔLoss / Δw &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b">← definition of slope</span><br>
+            −3 &nbsp;&nbsp;&nbsp;= ΔLoss / 0.3<br>
+            ΔLoss = −3 × 0.3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#a855f7;font-weight:700">−0.9</span>
+          </div>
+          <div style="color:#64748b;font-size:.82rem">Loss dropped by 0.9. Negative = good. The model got better.</div>
+        </div>
+
+        <div style="background:#0d0d0d;border-radius:8px;padding:.65rem 1rem;margin:.65rem 0;font-size:.84rem">
+          <div style="color:#fbbf24;font-weight:700;margin-bottom:.5rem">The chain:</div>
+          <div style="font-family:monospace;color:#94a3b8;line-height:2">
+            lr <span style="color:#64748b">(0.1)</span>
+            &nbsp;→&nbsp; sets Δw <span style="color:#10b981">(+0.3)</span>
+            &nbsp;→&nbsp; Δw determines ΔLoss <span style="color:#a855f7">(−0.9)</span>
+          </div>
+          <div style="color:#64748b;font-size:.81rem;margin-top:.3rem">lr is how cautious we are. Δw is how far w actually moved. ΔLoss is what that movement caused.</div>
+        </div>
+      </div>
+
+      <button class="cont-btn" id="cont2" onclick="unlock(3)">Next: Two Knobs — Partial Derivatives →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 3 — PARTIAL DERIVATIVES
+══════════════════════════════════════════ -->
+<div class="ch locked" id="ch3" style="border-color:#5a1a1a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#1f0a0a,#2a1010)">
+    <div class="ch-icon">🎛️</div>
+    <div>
+      <div class="ch-label" style="color:#f87171">Chapter 3</div>
+      <div class="ch-title">Two Knobs — Partial Derivatives</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 🌡️</h3>
+      <p>You have a smart room with two controls: a <strong>🔥 heater dial</strong> (0–10) and a <strong>❄️ fan speed</strong> (0–10). Room temperature is:</p>
+      <p style="text-align:center;font-family:monospace;font-size:1.05rem;margin:.5rem 0"><strong>temp = heater × 3 − fan × 2 + 15</strong></p>
+      <p>A <strong>partial derivative</strong> answers: <em>"If I touch ONLY ONE knob and leave the other completely alone — how does temperature change?"</em></p>
+      <p>∂temp/∂heater = <strong>3</strong> → turning heater up 1 notch → temp rises 3°<br>
+      ∂temp/∂fan = <strong>−2</strong> → turning fan up 1 notch → temp drops 2°</p>
+      <p>Notice: <strong>the partial derivative doesn't depend on the current values</strong> of heater or fan — it's always 3 and −2. That's because our formula is linear in those variables.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">🎯</div>
+      <div class="insight-text">
+        <strong>Key insight:</strong> For <code>d = a×b + c</code>:<br>
+        ∂d/∂a = b &nbsp;(how sensitive is d to a? as sensitive as b currently is)<br>
+        ∂d/∂b = a &nbsp;(how sensitive is d to b? as sensitive as a currently is)<br>
+        ∂d/∂c = 1 &nbsp;(always 1 — adding 1 to c always adds exactly 1 to d)
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🎮 Smart Room Temperature</div>
+      <div class="srow"><label>🔥 Heater</label><input type="range" id="rm_h" min="0" max="10" step="0.5" value="4" oninput="roomUpdate()"><span class="sv" id="rm_hv">4.0</span></div>
+      <div class="srow"><label>❄️ Fan</label><input type="range" id="rm_f" min="0" max="10" step="0.5" value="3" oninput="roomUpdate()"><span class="sv" id="rm_fv">3.0</span></div>
+      <div class="ocards">
+        <div class="ocard highlight"><div class="ol">🌡️ Room temp (°C)</div><div class="ov" id="rm_t">-</div></div>
+        <div class="ocard"><div class="ol">∂temp/∂heater</div><div class="ov" id="rm_dh">+3.0 (always)</div></div>
+        <div class="ocard"><div class="ol">∂temp/∂fan</div><div class="ov" id="rm_df">−2.0 (always)</div></div>
+      </div>
+      <div style="margin-top:.75rem;padding:.75rem;background:var(--code);border-radius:8px;font-family:monospace;font-size:.88rem;color:var(--muted)" id="rm_explain">
+        Formula: temp = heater×3 − fan×2 + 15
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <div class="story" style="margin-top:0">
+      <h3>Another Example 🍕 Pizza Price</h3>
+      <p><strong>price = size × 2 + toppings × 1.5</strong></p>
+      <p>∂price/∂size = <strong>2</strong> → every extra inch of diameter costs $2 more<br>
+      ∂price/∂toppings = <strong>1.5</strong> → every extra topping costs $1.50 more</p>
+      <p>These partial derivatives are the "price sensitivity" — they tell you which variable is more powerful right now.</p>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🍕 Pizza Price Calculator</div>
+      <div class="srow"><label>📏 Size (inch)</label><input type="range" id="pz_s" min="6" max="20" step="1" value="12" oninput="pizzaUpdate()"><span class="sv" id="pz_sv">12</span></div>
+      <div class="srow"><label>🧅 Toppings</label><input type="range" id="pz_t" min="0" max="10" step="1" value="3" oninput="pizzaUpdate()"><span class="sv" id="pz_tv">3</span></div>
+      <div class="ocards">
+        <div class="ocard highlight"><div class="ol">💰 Price ($)</div><div class="ov" id="pz_p">-</div></div>
+        <div class="ocard"><div class="ol">∂price/∂size</div><div class="ov">$2.00</div></div>
+        <div class="ocard"><div class="ol">∂price/∂toppings</div><div class="ov">$1.50</div></div>
+        <div class="ocard"><div class="ol">Add 1 topping adds…</div><div class="ov" id="pz_add">$1.50</div></div>
+      </div>
+    </div>
+
+    
+      <div style="background:linear-gradient(135deg,#0f1020,#0a1f18);border:2px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+        <div class="tag tag-green" style="margin-bottom:.7rem">🧮 concrete walkthrough — numbers in, numbers out</div>
+        
+        <p style="margin:0 0 .5rem;color:#94a3b8">Room formula: <code>temp = heater×3 − fan×2 + 15</code></p>
+        <div class="code-box" style="margin:.5rem 0;line-height:2.1">
+          heater=4, fan=3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ temp = 12 − 6 + 15 = <span style="color:#fbbf24">21°C</span><br>
+          <br>
+          ∂temp/∂heater = 3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(fan held fixed)<br>
+          nudge heater by 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ temp rises by <span style="color:#10b981">+3°C</span> → 24°C<br>
+          <br>
+          ∂temp/∂fan = −2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(heater held fixed)<br>
+          nudge fan by 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ temp drops by <span style="color:#a855f7">−2°C</span> → 19°C<br>
+          <br>
+          <span style="color:#64748b">Key: you change ONE knob at a time. The other stays frozen.</span>
+        </div>
+        <p style="margin:.4rem 0 0;font-size:.85rem;color:#64748b">In a neural network with 1000 weights, you do this for every weight — hold 999 fixed, nudge 1, measure. That's 1000 partial derivatives. Backprop computes all 1000 at once.</p>
+      </div>
+
+    <div class="math-bridge">
+      <div class="bridge-title">🔗 Why this matters for neural networks</div>
+      In a neural net, the "loss" (how wrong the answer is) depends on HUNDREDS of weights. Partial derivatives tell us: <em>for each weight, if I nudge it a tiny bit, how much does the loss change?</em> We compute all of them at once — that's backpropagation!
+    </div>
+
+    <div class="quiz">
+      <h3>🎯 Check Your Understanding</h3>
+
+      <div class="q" id="q5">
+        <div class="q-text">Q5. In the room formula <code>temp = heater×3 − fan×2 + 15</code>, with heater=6 and fan=4, what is the temperature?</div>
+        <div class="q-row">
+          <input class="qi" id="q5i" type="number" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q5',25,0.1,'6×3 − 4×2 + 15 = 18 − 8 + 15 = 25')">
+          <button class="btn-p btn-sm" onclick="checkNum('q5',25,0.1,'6×3 − 4×2 + 15 = 18 − 8 + 15 = 25')">Check</button>
+          <button class="btn-reveal btn-sm" id="q5r" onclick="revealNum('q5',25,'6×3=18, 4×2=8, 18−8+15=25°C')">Show</button>
+        </div>
+        <div class="fb" id="q5f"></div>
+      </div>
+
+      <div class="q" id="q6">
+        <div class="q-text">Q6. For <code>output = a×b + c</code> with <code>a=5, b=3, c=7</code>, what is <code>∂output/∂a</code>?<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: treat b and c as constants. Differentiating a×b with respect to a gives you…</span></div>
+        <div class="q-row">
+          <input class="qi" id="q6i" type="number" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q6',3,0.05,'∂(a×b)/∂a = b = 3. The other variable becomes the derivative!')">
+          <button class="btn-p btn-sm" onclick="checkNum('q6',3,0.05,'∂(a×b)/∂a = b = 3. The other variable becomes the derivative!')">Check</button>
+          <button class="btn-reveal btn-sm" id="q6r" onclick="revealNum('q6',3,'∂(a×b+c)/∂a = b = 3. When differentiating a product, the other variable "stays behind".')">Show</button>
+        </div>
+        <div class="fb" id="q6f"></div>
+      </div>
+
+      <button class="cont-btn" id="cont3" onclick="unlock(4)">Next: The Gradient — All Partial Derivatives Together →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 4 — THE GRADIENT
+══════════════════════════════════════════ -->
+<div class="ch locked" id="ch4" style="border-color:#1a4d2a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#0a1f10,#101f15)">
+    <div class="ch-icon">🧭</div>
+    <div>
+      <div class="ch-label" style="color:#4ade80">Chapter 4</div>
+      <div class="ch-title">The Gradient — A Compass for Functions</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 🧭</h3>
+      <p>A derivative gives you the slope when you have <em>one</em> input. But what if you have <em>many</em> inputs (like a neural network with thousands of weights)?</p>
+      <p>The <strong>gradient</strong> is simply a list of ALL the partial derivatives at once:</p>
+      <p style="font-family:monospace;font-size:.95rem;background:var(--code);padding:.5rem .75rem;border-radius:6px;margin:.4rem 0">
+        gradient = [∂output/∂a, ∂output/∂b, ∂output/∂c, ...]
+      </p>
+      <p>Think of it like a <strong>compass arrow</strong>: it points in the direction where the function increases <em>fastest</em>. To make the function go DOWN (decrease loss), you walk in the <strong>opposite</strong> direction.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">🧭</div>
+      <div class="insight-text">
+        <strong>The gradient points UPHILL.</strong><br>
+        To go downhill (reduce loss): subtract the gradient.<br>
+        That's gradient descent: <code>weight = weight − lr × gradient</code>
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🎮 Gradient Explorer — output = a² + b²</div>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:.6rem">This bowl-shaped function has its minimum at a=0, b=0. The gradient always points away from the center (uphill).</p>
+      <canvas id="grad-canvas" width="500" height="250"></canvas>
+      <div class="srow"><label>a =</label><input type="range" id="ga" min="-3" max="3" step="0.1" value="2" oninput="gradUpdate()"><span class="sv" id="gav">2.0</span></div>
+      <div class="srow"><label>b =</label><input type="range" id="gb" min="-3" max="3" step="0.1" value="1.5" oninput="gradUpdate()"><span class="sv" id="gbv">1.5</span></div>
+      <div class="ocards">
+        <div class="ocard"><div class="ol">output = a²+b²</div><div class="ov" id="g_out">-</div></div>
+        <div class="ocard"><div class="ol">∂out/∂a = 2a</div><div class="ov" id="g_da">-</div></div>
+        <div class="ocard"><div class="ol">∂out/∂b = 2b</div><div class="ov" id="g_db">-</div></div>
+        <div class="ocard highlight"><div class="ol">gradient = [da, db]</div><div class="ov" id="g_grad">-</div></div>
+      </div>
+    </div>
+
+    
+      <div style="background:linear-gradient(135deg,#0f1020,#0a1f18);border:2px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+        <div class="tag tag-green" style="margin-bottom:.7rem">🧮 concrete walkthrough — numbers in, numbers out</div>
+        
+        <p style="margin:0 0 .5rem;color:#94a3b8">Function: <code>output = a² + b²</code> &nbsp; At <code>a=3, b=−2</code>.</p>
+        <div class="code-box" style="margin:.5rem 0;line-height:2.1">
+          output &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 3² + (−2)² = 9 + 4 = <span style="color:#fbbf24">13</span><br>
+          ∂out/∂a = 2a = 2×3 &nbsp;&nbsp;= <span style="color:#ef4444">+6</span> &nbsp;&nbsp;(slope for a)<br>
+          ∂out/∂b = 2b = 2×(−2) = <span style="color:#ef4444">−4</span> &nbsp;&nbsp;(slope for b)<br>
+          gradient = [+6, −4] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(points uphill)<br>
+          <br>
+          one descent step (lr=0.1):<br>
+          a_new = 3 − 0.1×6 &nbsp;&nbsp;&nbsp;= <span style="color:#10b981">2.4</span><br>
+          b_new = −2 − 0.1×(−4) = <span style="color:#10b981">−1.6</span><br>
+          output_new = 2.4² + 1.6² = 5.76 + 2.56 = <span style="color:#10b981;font-weight:700">8.32 ✓</span> &nbsp;(was 13)
+        </div>
+        <p style="margin:.4rem 0 0;font-size:.85rem;color:#64748b">One step moved output from 13 → 8.32. The gradient pointed uphill, we went opposite. Both weights updated simultaneously — that's the power of the gradient over a single derivative.</p>
+      </div>
+
+    <div class="math-bridge">
+      <div class="bridge-title">🔗 In neural networks</div>
+      After backpropagation, every single weight has its own gradient number: "how much should I nudge THIS weight to reduce the loss?" The gradient is the full list of all those numbers — one per weight. A neural net might have millions of weights, but the algorithm works the same way!
+    </div>
+
+    <div class="quiz">
+      <h3>🎯 Check Your Understanding</h3>
+
+      <div class="q" id="q7">
+        <div class="q-text">Q7. For <code>output = a² + b²</code> at point <code>a=3, b=−2</code>, what is <code>∂output/∂a</code>?<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: derivative of a² with respect to a is 2a</span></div>
+        <div class="q-row">
+          <input class="qi" id="q7i" type="number" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q7',6,0.05,'2×a = 2×3 = 6')">
+          <button class="btn-p btn-sm" onclick="checkNum('q7',6,0.05,'2×a = 2×3 = 6')">Check</button>
+          <button class="btn-reveal btn-sm" id="q7r" onclick="revealNum('q7',6,'d(a²)/da = 2a = 2×3 = 6')">Show</button>
+        </div>
+        <div class="fb" id="q7f"></div>
+      </div>
+
+      <div class="q" id="q8">
+        <div class="q-text">Q8. The gradient of <code>output = a² + b²</code> at <code>a=3, b=−2</code> is <code>[6, −4]</code>. To <strong>decrease</strong> output, should we move in direction <code>[6, −4]</code> or <code>[−6, +4]</code>?</div>
+        <div class="choices" id="q8c">
+          <span class="choice" onclick="pick('q8','same',this)">[6, −4] (same as gradient)</span>
+          <span class="choice" onclick="pick('q8','opp',this)">[−6, +4] (opposite)</span>
+        </div>
+        <div class="q-row">
+          <button class="btn-p btn-sm" onclick="checkChoice('q8','opp','Correct! Gradient points uphill. To go downhill, move in the opposite direction.')">Check</button>
+          <button class="btn-reveal btn-sm" id="q8r" onclick="revealChoice('q8','opp','Opposite direction! The gradient points uphill — flip it to go downhill.')">Show</button>
+        </div>
+        <div class="fb" id="q8f"></div>
+      </div>
+
+      <button class="cont-btn" id="cont4" onclick="unlock(5)">Next: Chain Rule — Dominoes →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 5 — CHAIN RULE
+══════════════════════════════════════════ -->
+<div class="ch locked" id="ch5" style="border-color:#4a3000">
+  <div class="ch-header" style="background:linear-gradient(135deg,#1f1400,#1a1000)">
+    <div class="ch-icon">🏦</div>
+    <div>
+      <div class="ch-label" style="color:#fbbf24">Chapter 5</div>
+      <div class="ch-title">The Chain Rule — Currency Conversion Dominoes</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 💱</h3>
+      <p>You're converting money: <strong>USD → EUR → JPY</strong></p>
+      <p>$1 = 0.9 EUR &nbsp; → &nbsp; 1 EUR = 130 JPY</p>
+      <p>So: $1 = 0.9 × 130 = <strong>117 JPY</strong></p>
+      <p>Now: if the USD increases by $2, how many extra JPY do you get?<br>
+      Extra JPY = 2 × 0.9 × 130 = <strong>234 JPY</strong></p>
+      <p>You just used the <strong>chain rule</strong>: multiply ALL the conversion rates along the chain. In math: if L depends on d, which depends on a, then <code>dL/da = dL/dd × dd/da</code>.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">🔗</div>
+      <div class="insight-text">
+        <strong>Chain Rule:</strong> dL/da = dL/dd × dd/de × de/da<br>
+        Each "×" is one link in the chain. You multiply ALL the local rates together.<br>
+        Backpropagation is just this chain rule applied to every node in a graph.
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">💱 Currency Chain — Trace how a $1 change flows through</div>
+      <div class="srow"><label>USD amount</label><input type="range" id="cc_usd" min="1" max="20" step="0.5" value="5" oninput="chainUpdate()"><span class="sv" id="cc_usdv">5</span></div>
+      <div class="srow"><label>USD→EUR rate</label><input type="range" id="cc_r1" min="0.5" max="1.5" step="0.05" value="0.9" oninput="chainUpdate()"><span class="sv" id="cc_r1v">0.90</span></div>
+      <div class="srow"><label>EUR→JPY rate</label><input type="range" id="cc_r2" min="100" max="160" step="5" value="130" oninput="chainUpdate()"><span class="sv" id="cc_r2v">130</span></div>
+      <div class="chain" id="chain-display"></div>
+      <div style="background:var(--code);border-radius:8px;padding:.75rem;margin-top:.5rem;font-size:.9rem">
+        <span style="color:var(--muted)">Chain rule: dJPY/dUSD = </span>
+        <span style="color:var(--warn)" id="cc_chain_eq">-</span>
+        <span style="color:var(--muted)"> = </span>
+        <span style="color:var(--success);font-weight:700" id="cc_chain_res">-</span>
+        <span style="color:var(--muted)"> JPY per $1</span>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:1rem">
+      <h3>Back to Math — L = (a × b + c) × f</h3>
+      <p>This is the same chain! Think of it as: "how does L change when I nudge a?"</p>
+
+      <div style="background:var(--code);border-radius:8px;padding:.8rem 1rem;margin:.6rem 0;font-size:.85rem">
+        <div class="tag">FIRST — plug in the starting values</div>
+        <div style="font-family:monospace;line-height:2;color:#94a3b8">
+          a = <span style="color:#e2e8f0">2</span> &nbsp;&nbsp; b = <span style="color:#ef4444">−3</span> &nbsp;&nbsp; c = <span style="color:#e2e8f0">10</span> &nbsp;&nbsp; f = <span style="color:#ef4444">−2</span><br>
+          e = a × b &nbsp;&nbsp;= 2 × (−3) = <span style="color:#a855f7">−6</span><br>
+          d = e + c &nbsp;&nbsp;= −6 + 10 &nbsp;= <span style="color:#a855f7">4</span><br>
+          L = d × f &nbsp;&nbsp;= 4 × (−2) = <span style="color:#a855f7">−8</span>
+        </div>
+      </div>
+
+      <div style="background:var(--code);border-radius:8px;padding:.8rem 1rem;margin:.6rem 0;font-size:.85rem">
+        <div class="tag">THEN — trace how a nudge to a flows through the chain</div>
+        <div style="font-family:monospace;line-height:2;color:#94a3b8">
+          de/da = b = <span style="color:#ef4444">−3</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569">← e = a×b, so rate of change w.r.t. a is just b</span><br>
+          dd/de = 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569">← d = e+c, adding a constant changes nothing</span><br>
+          dL/dd = f = <span style="color:#ef4444">−2</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569">← L = d×f, so rate of change w.r.t. d is just f</span>
+        </div>
+      </div>
+
+      <div style="background:#0d1a10;border:1px solid #1d5c3a;border-radius:8px;padding:.8rem 1rem;margin:.6rem 0;font-size:.85rem">
+        <div style="color:#10b981;font-size:.75rem;font-weight:700;letter-spacing:.05em;margin-bottom:.5rem">CHAIN RULE — multiply all three rates</div>
+        <div style="font-family:monospace;line-height:2;color:#e2e8f0">
+          dL/da = dL/dd × dd/de × de/da<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#ef4444">(−2)</span> × <span style="color:#fbbf24">1</span> × <span style="color:#ef4444">(−3)</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#10b981;font-weight:700">6</span>
+        </div>
+        <div style="color:#64748b;font-size:.82rem;margin-top:.4rem">Two negatives make a positive. Only the multipliers b and f survive — a and c cancelled out completely.</div>
+      </div>
+    </div>
+
+    
+      <div style="background:linear-gradient(135deg,#0f1020,#0a1f18);border:2px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+        <div class="tag tag-green" style="margin-bottom:.7rem">🧮 concrete walkthrough — numbers in, numbers out</div>
+        
+        <p style="margin:0 0 .5rem;color:#94a3b8">Function: <code>L = (a × b + c) × f</code> &nbsp; Values: <code>a=2, b=−3, c=10, f=−2</code></p>
+        <div class="code-box" style="margin:.5rem 0;line-height:2.1">
+          e = a×b = 2×(−3) = <span style="color:#a855f7">−6</span><br>
+          d = e+c = −6+10 &nbsp;= <span style="color:#a855f7">4</span><br>
+          L = d×f = 4×(−2) = <span style="color:#a855f7">−8</span><br>
+          <br>
+          chain: dL/da = dL/dd × dd/de × de/da<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= f &nbsp;&nbsp;× &nbsp;1 &nbsp;&nbsp;× &nbsp;b<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (−2) × 1 × (−3) = <span style="color:#10b981;font-weight:700">6</span><br>
+          <br>
+          verify: nudge a by 0.001 → a=2.001<br>
+          e=−6.003, d=3.997, L=−7.994<br>
+          ΔL / Δa = (−7.994−(−8)) / 0.001 = <span style="color:#10b981;font-weight:700">6.0 ✓</span>
+        </div>
+        <p style="margin:.4rem 0 0;font-size:.85rem;color:#64748b">The chain rule gave 6 without re-running the whole function. It traced the path a→e→d→L and multiplied the rates at each step — exactly like multiplying currency conversion rates.</p>
+      </div>
+
+    <div class="quiz">
+      <h3>🎯 Check Your Understanding</h3>
+
+      <div class="q" id="q9">
+        <div class="q-text">Q9. USD→GBP rate is 0.8. GBP→AUD rate is 1.9. If USD increases by $1, how many extra AUD do you get? (This is the chain rule!)<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: multiply the two rates</span></div>
+        <div class="q-row">
+          <input class="qi" id="q9i" type="number" step="0.01" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q9',1.52,0.02,'0.8 × 1.9 = 1.52 AUD per dollar')">
+          <button class="btn-p btn-sm" onclick="checkNum('q9',1.52,0.02,'0.8 × 1.9 = 1.52 AUD per dollar')">Check</button>
+          <button class="btn-reveal btn-sm" id="q9r" onclick="revealNum('q9',1.52,'0.8 × 1.9 = 1.52. Chain rule: multiply each step\'s rate.')">Show</button>
+        </div>
+        <div class="fb" id="q9f"></div>
+      </div>
+
+      <div class="q" id="q10">
+        <div class="q-text">Q10. For <code>L = d × f</code> and <code>d = a + b</code>, use the chain rule to find <code>dL/da</code> when <code>f = −5</code>.<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: dL/dd = f = −5. dd/da = 1 (addition). Chain: dL/da = dL/dd × dd/da</span></div>
+        <div class="q-row">
+          <input class="qi" id="q10i" type="number" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q10',-5,0.05,'dL/da = f × 1 = −5')">
+          <button class="btn-p btn-sm" onclick="checkNum('q10',-5,0.05,'dL/da = f × 1 = −5')">Check</button>
+          <button class="btn-reveal btn-sm" id="q10r" onclick="revealNum('q10',-5,'dL/dd × dd/da = (−5) × 1 = −5')">Show</button>
+        </div>
+        <div class="fb" id="q10f"></div>
+      </div>
+
+      <button class="cont-btn" id="cont5" onclick="unlock(6)">Next: Gradient Descent — Finding the Valley →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 6 — GRADIENT DESCENT
+══════════════════════════════════════════ -->
+<div class="ch locked" id="ch6" style="border-color:#0a3a4a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#0a1f2a,#051520)">
+    <div class="ch-icon">⛷️</div>
+    <div>
+      <div class="ch-label" style="color:#38bdf8">Chapter 6</div>
+      <div class="ch-title">Gradient Descent — Finding the Valley in Fog</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story ⛷️</h3>
+      <p>Imagine you're <strong>blindfolded on a hill</strong>. Your job: find the lowest point — the valley. You can't see anything. You can only <em>feel the ground under your feet</em>.</p>
+      <p>What do you do?</p>
+      <ol style="margin:.4rem 0 .6rem;padding-left:1.4rem;line-height:2">
+        <li>Feel which way the ground slopes</li>
+        <li>Take a small step <strong>downhill</strong></li>
+        <li>Feel again</li>
+        <li>Repeat until it's flat under your feet — you're at the bottom ✓</li>
+      </ol>
+      <p>That's the entire algorithm. That's gradient descent. Nothing more.</p>
+    </div>
+
+    <div style="background:var(--code);border-radius:10px;padding:1rem 1.2rem;margin:1rem 0;font-size:.9rem;line-height:1.9">
+      <div class="tag">🦶 Feeling the ground = reading the slope</div>
+      <div class="grid-3" style="text-align:center">
+        <div style="background:#2a0d0d;border:1px solid #7f1d1d;border-radius:8px;padding:.6rem;font-size:.83rem">
+          <div style="font-size:1.3rem">↗️</div>
+          <div style="color:#ef4444;font-weight:700">slope = +6</div>
+          <div style="color:#94a3b8">ground goes UP right</div>
+          <div style="color:#ef4444">step LEFT → decrease w</div>
+        </div>
+        <div style="background:#1a1a0a;border:1px solid #4a4a1a;border-radius:8px;padding:.6rem;font-size:.83rem">
+          <div style="font-size:1.3rem">➡️</div>
+          <div style="color:#fbbf24;font-weight:700">slope = 0</div>
+          <div style="color:#94a3b8">ground is flat</div>
+          <div style="color:#fbbf24">you're at the valley, stop</div>
+        </div>
+        <div style="background:#0d2018;border:1px solid #1d5c3a;border-radius:8px;padding:.6rem;font-size:.83rem">
+          <div style="font-size:1.3rem">↘️</div>
+          <div style="color:#10b981;font-weight:700">slope = −6</div>
+          <div style="color:#94a3b8">ground goes DOWN right</div>
+          <div style="color:#10b981">step RIGHT → increase w</div>
+        </div>
+      </div>
+      <div style="margin-top:.85rem;font-family:monospace;font-size:.88rem;text-align:center">
+        <span style="color:var(--muted)">The formula </span>
+        <span style="color:#fbbf24;font-weight:700">w = w − lr × slope</span>
+        <span style="color:var(--muted)"> does this automatically — the minus sign always flips you downhill</span>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>What about h — do I increase it or decrease it?</h3>
+      <p><strong>h is not something you act on.</strong> h was the teaching tool — the tiny nudge we used to understand what a slope <em>is</em>. Like training wheels on a bike. Once you understand slope, h's job is done.</p>
+      <p>In real neural networks nobody picks h. The slope is computed directly. The only two things you actually control are:</p>
+      <ul style="margin:.3rem 0;padding-left:1.3rem;line-height:2">
+        <li><strong>Which way to move w</strong> — automatically decided by the sign of the slope</li>
+        <li><strong>How big a step</strong> — the learning rate (lr). Small = careful. Big = risky.</li>
+      </ul>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>One full training run — what actually happens</h3>
+      <div style="font-family:monospace;font-size:.85rem;background:var(--code);border-radius:8px;padding:.8rem 1rem;line-height:2;color:#94a3b8">
+        Loss starts at 3.7 &nbsp;← model is very wrong<br>
+        <span style="color:#ef4444">slope = −4</span> &nbsp;→ increase w → Loss drops to 3.2<br>
+        <span style="color:#ef4444">slope = −3</span> &nbsp;→ increase w → Loss drops to 2.6<br>
+        <span style="color:#ef4444">slope = −1</span> &nbsp;→ increase w → Loss drops to 2.1<br>
+        <span style="color:#fbbf24">slope = +0.5</span> → decrease w → Loss drops to 1.9<br>
+        <span style="color:#64748b">... (repeat 1000 times) ...</span><br>
+        <span style="color:#10b981">slope ≈ 0 → stop → Loss ≈ 0.001 → model is accurate ✓</span>
+      </div>
+      <p style="margin:.6rem 0 0">Each step the slope says <strong>go this way</strong>. The learning rate says <strong>this much</strong>. Backprop computes the slope for <em>every weight at once</em>. That's the whole engine.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">⛷️</div>
+      <div class="insight-text">
+        <strong>Gradient descent in one sentence:</strong> repeatedly take small steps downhill on the loss landscape until you reach a minimum — where the loss is as low as possible and the model is as accurate as possible.
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🎿 Watch the ball roll to the valley — Loss = w²</div>
+      <canvas id="gd-canvas" width="700" height="220"></canvas>
+      <div class="srow"><label>Start w =</label><input type="range" id="an_start" min="-5" max="5" step="0.5" value="4" oninput="gdReset()"><span class="sv" id="an_sv">4.0</span></div>
+      <div class="srow"><label>Learning rate</label><input type="range" id="an_lr" min="0.02" max="0.95" step="0.02" value="0.2" oninput="gdReset()"><span class="sv" id="an_lrv">0.20</span></div>
+      <div style="display:flex;gap:.5rem;margin-top:.5rem">
+        <button class="btn-p" id="an_btn" onclick="gdToggle()">▶ Run</button>
+        <button class="btn-s" onclick="gdReset()">↺ Reset</button>
+      </div>
+      <div class="ocards" style="margin-top:.6rem">
+        <div class="ocard"><div class="ol">Step</div><div class="ov" id="an_step">0</div></div>
+        <div class="ocard"><div class="ol">w</div><div class="ov" id="an_w">-</div></div>
+        <div class="ocard"><div class="ol">Loss = w²</div><div class="ov" id="an_loss">-</div></div>
+        <div class="ocard"><div class="ol">gradient = 2w</div><div class="ov" id="an_grad">-</div></div>
+      </div>
+      <p style="color:var(--muted);font-size:.8rem;margin-top:.4rem">⚠️ Try lr > 0.9 to see what happens when steps are too large (bouncing!)</p>
+    </div>
+
+    
+      <div style="background:linear-gradient(135deg,#0f1020,#0a1f18);border:2px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+        <div class="tag tag-green" style="margin-bottom:.7rem">🧮 concrete walkthrough — numbers in, numbers out</div>
+        
+        <p style="margin:0 0 .5rem;color:#94a3b8">🏢 You're at floor 60. Goal: floor 0. Slope = w÷6 (gets flatter near bottom). lr = 1.</p>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-family:monospace;font-size:.83rem;margin:.5rem 0">
+          <thead><tr style="color:#64748b;border-bottom:1px solid #334155">
+            <td style="padding:.3rem .6rem">Move</td>
+            <td style="padding:.3rem .6rem">Floor (w)</td>
+            <td style="padding:.3rem .6rem">Slope = w÷6</td>
+            <td style="padding:.3rem .6rem">Δw = lr×slope</td>
+            <td style="padding:.3rem .6rem">New floor</td>
+          </tr></thead>
+          <tbody style="color:#94a3b8">
+            <tr style="background:#0d1a0d"><td style="padding:.3rem .6rem">1</td><td>60.0</td><td style="color:#ef4444">10.00</td><td>10.00</td><td style="color:#fbbf24">50.0</td></tr>
+            <tr><td style="padding:.3rem .6rem">2</td><td>50.0</td><td style="color:#ef4444">8.33</td><td>8.33</td><td style="color:#fbbf24">41.7</td></tr>
+            <tr style="background:#0d1a0d"><td style="padding:.3rem .6rem">3</td><td>41.7</td><td style="color:#f97316">6.94</td><td>6.94</td><td style="color:#fbbf24">34.7</td></tr>
+            <tr><td style="padding:.3rem .6rem">4</td><td>34.7</td><td style="color:#f97316">5.79</td><td>5.79</td><td style="color:#fbbf24">28.9</td></tr>
+            <tr style="background:#0d1a0d"><td style="padding:.3rem .6rem">5</td><td>28.9</td><td style="color:#fbbf24">4.82</td><td>4.82</td><td style="color:#fbbf24">24.1</td></tr>
+            <tr><td style="padding:.3rem .6rem">…</td><td>…</td><td style="color:#fbbf24">getting smaller</td><td>getting smaller</td><td>…</td></tr>
+            <tr style="background:#0d1a0d"><td style="padding:.3rem .6rem">20</td><td>3.1</td><td style="color:#10b981">0.52</td><td>0.52</td><td style="color:#10b981">2.6</td></tr>
+            <tr><td style="padding:.3rem .6rem">30</td><td>0.4</td><td style="color:#10b981">0.07</td><td>0.07</td><td style="color:#10b981">≈ 0 ✓</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="code-box" style="margin:.5rem 0;line-height:2">
+          lr = 0.01 &nbsp;&nbsp;&nbsp;→ tiny steps, takes 200+ moves (very cautious)<br>
+          lr = 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ moderate, takes ~30 moves (confident)<br>
+          lr = 6 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Δw = 6 × slope = full slope → <span style="color:#ef4444">overshoots floor 0!</span><br>
+          lr = 0.1→1.0 &nbsp;→ schedule: bold early, careful near bottom ✓
+        </div>
+        <p style="margin:.4rem 0 0;font-size:.85rem;color:#64748b">The steps shrink automatically as you near 0 — not because lr changes, but because the slope gets smaller near the bottom. lr just controls how much you trust the slope at each step. That trust level is your confidence.</p>
+      </div>
+
+    <div class="math-bridge">
+      <div class="bridge-title">🔗 The full training loop in 5 lines</div>
+      <pre style="font-family:monospace;font-size:.88rem;color:var(--muted);white-space:pre-wrap">for step in range(1000):
+    loss = model(inputs) vs targets      # forward: compute how wrong
+    zero_grad()                          # reset all .grad to 0
+    loss.backward()                      # backprop: fill all .grad
+    for w in weights:
+        w = w - lr × w.grad             # gradient descent step</pre>
+    </div>
+
+    <div class="quiz">
+      <h3>🎯 Final Check</h3>
+
+      <div class="q" id="q11">
+        <div class="q-text">Q11. <code>w = 5</code>, <code>w.grad = −4</code>, <code>lr = 0.1</code>. What is the new value of <code>w</code>?<br>
+        <span style="color:var(--muted);font-size:.85rem">Formula: w_new = w − lr × grad</span></div>
+        <div class="q-row">
+          <input class="qi" id="q11i" type="number" step="0.1" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q11',5.4,0.02,'5 − 0.1 × (−4) = 5 + 0.4 = 5.4 (w increased because grad was negative)')">
+          <button class="btn-p btn-sm" onclick="checkNum('q11',5.4,0.02,'5 − 0.1 × (−4) = 5 + 0.4 = 5.4 (w increased because grad was negative)')">Check</button>
+          <button class="btn-reveal btn-sm" id="q11r" onclick="revealNum('q11',5.4,'5 − 0.1×(−4) = 5 + 0.4 = 5.4. Negative gradient → w goes UP!')">Show</button>
+        </div>
+        <div class="fb" id="q11f"></div>
+      </div>
+
+      <div class="q" id="q12">
+        <div class="q-text">Q12. You run gradient descent on <code>Loss = w²</code>. Starting at <code>w=6</code>, gradient = <code>2w = 12</code>, lr=0.1. After ONE step, what is the loss?<br>
+        <span style="color:var(--muted);font-size:.85rem">Step 1: w_new = 6 − 0.1×12 = ? Then Loss = w_new²</span></div>
+        <div class="q-row">
+
+          <input class="qi" id="q12i" type="number" step="0.01" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q12',23.04,0.1,'w_new=6−1.2=4.8, Loss=4.8²=23.04')">
+          <button class="btn-p btn-sm" onclick="checkNum('q12',23.04,0.1,'w_new=6−1.2=4.8, Loss=4.8²=23.04')">Check</button>
+          <button class="btn-reveal btn-sm" id="q12r" onclick="revealNum('q12',23.04,'w_new = 6 − 0.1×12 = 4.8. Loss = 4.8² = 23.04 (was 36, now lower!)')">Show</button>
+        </div>
+        <div class="fb" id="q12f"></div>
+      </div>
+
+      <button class="cont-btn" id="cont6" onclick="unlock(7)">Next: Backprop Through a Neuron →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 7 — BACKPROP THROUGH A NEURON
+══════════════════════════════════════════ -->
+<div class="ch locked" id="ch7" style="border-color:#1a2a4a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#0a1020,#0a1530)">
+    <div class="ch-icon">🧠</div>
+    <div>
+      <div class="ch-label" style="color:#60a5fa">Chapter 7</div>
+      <div class="ch-title">Backprop Through a Neuron — The Chain Rule in Action</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 🧠</h3>
+      <p>A single neuron does three things in sequence:</p>
+      <ol style="margin:.4rem 0 .6rem;padding-left:1.4rem;line-height:2.1">
+        <li><strong>Multiply</strong> — each input gets scaled by a weight: <code>x₁×w₁</code>, <code>x₂×w₂</code></li>
+        <li><strong>Add</strong> — sum everything up plus a bias: <code>x₁w₁ + x₂w₂ + b</code></li>
+        <li><strong>Squash</strong> — push through an activation (tanh) to keep output between −1 and +1</li>
+      </ol>
+      <p>The <strong>forward pass</strong> runs left→right: inputs go in, output comes out.</p>
+      <p>The <strong>backward pass</strong> runs right→left: gradient flows back through each operation using the chain rule, leaving a gradient on every weight.</p>
+      <p>Those gradients on the weights are exactly what gradient descent needs.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">🧠</div>
+      <div class="insight-text">
+        <strong>Backprop is just the chain rule, applied at every operation, in reverse order.</strong><br>
+        At each node: local gradient × gradient flowing in from the right = gradient flowing out to the left.
+      </div>
+    </div>
+
+
+    <div class="demo">
+      <div class="demo-title">🧠 Anatomy of One Neuron</div>
+      <canvas id="cv_anatomy" width="720" height="260"></canvas>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.5rem;margin-top:.75rem;text-align:center;font-size:.82rem">
+        <div class="card-purple" style="padding:.6rem">
+          <div style="color:#a855f7;font-weight:700">Inputs (x)</div>
+          <div style="color:#94a3b8">signals coming in<br>e.g. pixel values</div>
+        </div>
+        <div class="card-green" style="padding:.6rem">
+          <div style="color:#10b981;font-weight:700">Weights (w)</div>
+          <div style="color:#94a3b8">how much to trust<br>each input</div>
+        </div>
+        <div class="card-yellow" style="padding:.6rem">
+          <div style="color:#fbbf24;font-weight:700">Bias (b)</div>
+          <div style="color:#94a3b8">shifts the firing<br>threshold</div>
+        </div>
+        <div class="card-red" style="padding:.6rem">
+          <div style="color:#ef4444;font-weight:700">tanh (squash)</div>
+          <div style="color:#94a3b8">bends the output<br>into (−1, +1)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Why do we do a Forward Pass?</h3>
+      <p>The forward pass answers one question: <strong>"given these weights and inputs, what does the neuron predict?"</strong></p>
+      <p>Think of it as asking the neuron: "if a photo has these pixel values, is it a cat or not?" The neuron runs the math, produces a number, and that number is its answer.</p>
+      <p>You then compare that answer to the truth — the difference is the <strong>loss</strong>. No forward pass = no answer = no loss = nothing to improve.</p>
+      <div class="code-box" style="margin:.5rem 0">
+        inputs → weights → neuron math → prediction → compare to truth → loss
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Why do we do a Backward Pass?</h3>
+      <p>The backward pass answers: <strong>"which weights caused the loss, and by how much?"</strong></p>
+      <p>Once you know the loss, you need to fix it. But which of the thousands of weights is responsible? And in which direction should each one change?</p>
+      <p>The backward pass traces the chain rule from the loss all the way back to every weight, assigning each one a gradient — a blame score. Weights with a large gradient caused more of the loss. Weights with a near-zero gradient barely mattered.</p>
+      <div class="code-box" style="margin:.5rem 0">
+        loss → trace chain rule backwards → gradient on every weight → gradient descent
+      </div>
+      <p style="margin:.5rem 0 0">Without the backward pass you'd have to guess which weights to change. With it, every weight gets a precise instruction: "move this much, in this direction."</p>
+
+      <div class="insight" style="margin-top:.75rem">
+        <div class="insight-icon">🌱</div>
+        <div class="insight-text">
+          <strong>Why is dL/do = 1 at the output node?</strong><br>
+          The backward pass must start somewhere. The convention is to place the seed gradient at the loss:<br>
+          <code>dL/dL = 1</code> — always true, because anything changes at rate 1 with respect to itself.<br><br>
+          In Karpathy's walkthrough, <code>L = o</code> (the output <em>is</em> the loss), so the seed lands on <code>o</code>:<br>
+          <code>dL/do = 1</code> — regardless of whether <code>o = 0.707</code> or any other value.<br><br>
+          <span style="color:#94a3b8">In a real network the loss is <code>(o − target)²</code>, so <code>dL/do = 2(o − target)</code> instead.
+          The seed is only 1 when the output node <em>is</em> the loss node.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>What is the Bias — and why does it exist?</h3>
+      <p>Imagine a simple rule: "if input × weight > 0, fire." Without bias, this line always passes through zero — it can only separate things that are centred at the origin.</p>
+      <p>Bias is an <strong>offset</strong>. It shifts the activation threshold left or right, giving the neuron freedom to fire at different points, not just when the weighted sum crosses zero.</p>
+      <div class="code-box" style="margin:.5rem 0">
+        without bias: neuron fires when  x₁w₁ + x₂w₂ > 0<br>
+        with bias:    neuron fires when  x₁w₁ + x₂w₂ + b > 0
+      </div>
+      <p>Think of it like an alarm clock. Weight controls how sensitive it is to noise. Bias controls what time it goes off — regardless of how sensitive it is.</p>
+      <p>Bias is just another weight that gets its own gradient and gets updated by gradient descent like everything else.</p>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>What is "Squash" (tanh) — and why is it required?</h3>
+      <p>After the weighted sum <code>x₁w₁ + x₂w₂ + b</code>, you have a raw number — could be 0.88, could be 450, could be −2000. That raw number grows unboundedly as you stack neurons.</p>
+      <p><strong>The problem:</strong> if you just stack multiplications, the whole network collapses into one big linear equation. You can't learn complex patterns with only straight lines.</p>
+      <p><strong>The solution:</strong> squash through a non-linear function. tanh squashes any number into the range (−1, +1):</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.6rem 0;text-align:center;font-family:monospace;font-size:.85rem">
+        <div class="card-red" style="padding:.7rem"><div style="color:#ef4444">tanh(−1000) ≈ −1</div><div style="color:#94a3b8">very negative → −1</div></div>
+        <div class="card-green" style="padding:.7rem"><div style="color:#10b981">tanh(+1000) ≈ +1</div><div style="color:#94a3b8">very positive → +1</div></div>
+        <div class="card-yellow" style="padding:.7rem"><div style="color:#fbbf24">tanh(0) = 0</div><div style="color:#94a3b8">zero → zero</div></div>
+        <div class="card-purple" style="padding:.7rem"><div style="color:#a855f7">tanh(0.88) ≈ 0.707</div><div style="color:#94a3b8">moderate → in-between</div></div>
+      </div>
+      <p>This "squash" does two things:</p>
+      <ol style="margin:.3rem 0;padding-left:1.3rem;line-height:2">
+        <li><strong>Keeps values bounded</strong> — prevents numbers exploding as you stack layers</li>
+        <li><strong>Adds non-linearity</strong> — without it, deep networks can't learn curves, corners, or complex shapes. With it, they can approximate almost any function.</li>
+      </ol>
+      <p>tanh is one option. ReLU (max(0, x)) is another popular one. The idea is the same: introduce a bend in the math so the network isn't just one big straight line.</p>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>🐜 The Ant Colony Analogy</h3>
+      <p>Imagine an ant colony finding food. The whole neuron maps like this:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.6rem 0;font-size:.85rem">
+        <div class="card-purple" style="padding:.6rem"><strong style="color:#a855f7">Ants (inputs × weights)</strong><br><span style="color:#94a3b8">Each ant carries pheromone proportional to its weight — how much that ant's signal matters</span></div>
+        <div class="card-yellow" style="padding:.6rem"><strong style="color:#fbbf24">Bias</strong><br><span style="color:#94a3b8">The colony's baseline urge to move — even with no ants present, there's still some motivation</span></div>
+        <div class="card-blue" style="padding:.6rem"><strong style="color:#3b82f6">Raw sum (n)</strong><br><span style="color:#94a3b8">Total pheromone accumulated — could be enormous or tiny depending on how many ants and how strong</span></div>
+        <div class="card-red" style="padding:.6rem"><strong style="color:#ef4444">tanh</strong><br><span style="color:#94a3b8">The colony's decision filter — no matter how strong the pheromone, the signal sent forward is always a clean −1 to +1</span></div>
+      </div>
+      <p>Without tanh: the next colony receives a raw pheromone count of 47,000 — overwhelming and uninterpretable.<br>
+      With tanh: the next colony receives a calm "0.98 — strong go signal." Every colony in the chain trusts the same scale.</p>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>3 More Intuitions for tanh</h3>
+
+      <div class="insight" style="margin-bottom:.75rem">
+        <div class="insight-icon">🎚️</div>
+        <div class="insight-text">
+          <strong>Volume limiter</strong><br>
+          A mixing board receives instruments at wildly different volumes — a whisper at 0.001, a drum kick at 10,000. Without a limiter the speaker explodes.
+          tanh is the <strong>compressor</strong>: no matter how loud the raw signal, the output stays between −1 and +1.
+          The <em>shape</em> (louder vs quieter, direction) is preserved — only the scale is tamed.<br>
+          <span style="color:#94a3b8;font-size:.85rem">weights = how loud each instrument · bias = amp hum in silence · tanh = the limiter</span>
+        </div>
+      </div>
+
+      <div class="insight" style="margin-bottom:.75rem">
+        <div class="insight-icon">😐</div>
+        <div class="insight-text">
+          <strong>Mood meter</strong><br>
+          You receive news. The raw intensity could be anything: −100 (devastating) or +500 (amazing).
+          But your actual <em>visible reaction</em> is always bounded — you don't literally explode with joy.
+          tanh models this: extreme inputs still produce a reaction, but a <strong>capped, proportional one</strong>.<br>
+          <span style="color:#94a3b8;font-size:.85rem">bias = your baseline mood before any news · tanh = your emotional processing filter</span>
+        </div>
+      </div>
+
+      <div class="insight" style="margin-bottom:.75rem">
+        <div class="insight-icon">🗳️</div>
+        <div class="insight-text">
+          <strong>Committee vote</strong><br>
+          Experts vote on a decision. Each expert (input) has a reputation score (weight).
+          The raw tally could be 4,871 vs 12.
+          tanh converts the lopsided tally into a clean verdict: <strong>"strongly approve (+0.99)"</strong> or <strong>"strongly reject (−0.99)"</strong> — a number the next committee can immediately act on.<br>
+          <span style="color:#94a3b8;font-size:.85rem">bias = chairperson's standing vote · tanh = the declared outcome rule</span>
+        </div>
+      </div>
+
+      <div class="code-box">
+        raw signal (any size)  →  tanh  →  clean signal (−1 to +1)<br>
+        tanh doesn't change direction — it compresses extreme values so the network stays stable.
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🔬 Neuron Forward + Backward Pass — step by step</div>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:.75rem">
+        Neuron: <code>output = tanh(x₁×w₁ + x₂×w₂ + b)</code><br>
+        Values: x₁=2, w₁=−3, x₂=0, w₂=1, b=6.88
+      </p>
+      <canvas id="cv_neuron" width="740" height="320"></canvas>
+      <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap">
+        <button class="btn-p" id="neuron_fwd_btn" onclick="neuronStep('forward')">▶ Forward Pass</button>
+        <button class="btn-p" id="neuron_bwd_btn" onclick="neuronStep('backward')" style="background:#1d4d6a">◀ Backward Pass</button>
+        <button class="btn-s" onclick="neuronReset()">↺ Reset</button>
+      </div>
+      <div style="margin-top:.75rem;background:var(--code);border-radius:8px;padding:.75rem 1rem;font-size:.85rem;line-height:1.8" id="neuron_explain">
+        Press <strong>Forward Pass</strong> to run the neuron and see how values flow left → right.
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Why dL/do → do/dn → dL/dn? (The Chain Rule, step by step)</h3>
+      <p>In the computation graph, <code>n</code> and <code>L</code> are <strong>not directly connected</strong>. The path is:</p>
+      <div class="code-box" style="text-align:center;letter-spacing:.05em">
+        n &nbsp;→&nbsp; <span style="color:#ef4444">tanh</span> &nbsp;→&nbsp; o &nbsp;→&nbsp; L
+      </div>
+      <p>To ask "how does L change if I wiggle n?" you must pass through every node on that path. That's the chain rule:</p>
+      <div class="code-box" style="text-align:center">
+        <span style="color:#10b981">dL/dn</span> = <span style="color:#a855f7">dL/do</span> × <span style="color:#fbbf24">do/dn</span>
+      </div>
+      <p>Think of it as currency conversion: to get from <em>euros → dollars</em> you need two rates — euros→pounds, pounds→dollars. You can't skip a currency in the middle.</p>
+
+      <div class="demo" style="margin-top:.75rem">
+        <div class="demo-title">🔁 Backward Pass — Step by Step</div>
+        <canvas id="cv_bp" width="720" height="200"></canvas>
+        <div style="display:flex;gap:.6rem;margin-top:.6rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-p" onclick="bpStep()">Next Step ▶</button>
+          <button class="btn-s" onclick="bpReset()">↺ Reset</button>
+        </div>
+        <div id="bp_explain" style="margin-top:.6rem;background:var(--code);border-radius:8px;padding:.75rem 1rem;font-size:.88rem;line-height:1.9"></div>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>What each operation's local gradient is</h3>
+      <div class="code-box">
+        <span style="color:#fbbf24">Multiplication</span> &nbsp;(e = a × b)<br>
+        &nbsp;&nbsp;∂e/∂a = b &nbsp;&nbsp;&nbsp;&nbsp;← the OTHER operand becomes the gradient<br>
+        &nbsp;&nbsp;∂e/∂b = a &nbsp;&nbsp;&nbsp;&nbsp;← swap the variables<br>
+        <br>
+        <span style="color:#fbbf24">Addition</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(e = a + b)<br>
+        &nbsp;&nbsp;∂e/∂a = 1 &nbsp;&nbsp;&nbsp;&nbsp;← gradient passes through unchanged<br>
+        &nbsp;&nbsp;∂e/∂b = 1 &nbsp;&nbsp;&nbsp;&nbsp;← same for both inputs<br>
+        <br>
+        <span style="color:#fbbf24">tanh</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(o = tanh(n))<br>
+        &nbsp;&nbsp;∂o/∂n = 1 − tanh²(n) = 1 − o² &nbsp;&nbsp;← the "tanh local gradient"
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#0f1020,#0a1f18);border:2px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;margin:1.25rem 0">
+      <div class="tag tag-green" style="margin-bottom:.7rem">🧮 concrete walkthrough — full neuron backprop</div>
+
+      <p style="margin:0 0 .5rem;color:#94a3b8">Values: <code>x₁=2, w₁=−3, x₂=0, w₂=1, b=6.88</code></p>
+
+      <div class="code-box" style="margin:.5rem 0;line-height:2.1">
+        <div style="color:#64748b;font-size:.78rem;margin-bottom:.3rem">── FORWARD PASS ──</div>
+        a = x₁ × w₁ = 2 × (−3) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#a855f7">−6</span><br>
+        b = x₂ × w₂ = 0 × 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#a855f7">0</span><br>
+        n = a + b + bias = −6 + 0 + 6.88 = <span style="color:#a855f7">0.88</span><br>
+        o = tanh(0.88) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#fbbf24">0.707</span>
+      </div>
+
+      <div class="code-box" style="margin:.5rem 0;line-height:2.1">
+        <div style="color:#64748b;font-size:.78rem;margin-bottom:.3rem">── BACKWARD PASS (chain rule, right → left) ──</div>
+        dL/do &nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#10b981">1.000</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569">← start (loss = output)</span><br>
+        do/dn &nbsp;&nbsp;&nbsp;&nbsp;= 1 − o² = 1 − 0.5 &nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#10b981">0.500</span> &nbsp;<span style="color:#475569">← tanh local grad</span><br>
+        dL/dn &nbsp;&nbsp;&nbsp;&nbsp;= dL/do × do/dn = 1 × 0.5 = <span style="color:#10b981">0.500</span><br>
+        <br>
+        <span style="color:#475569">← addition: gradient passes through equally to all inputs</span><br>
+        dL/da &nbsp;&nbsp;&nbsp;&nbsp;= dL/dn × 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#10b981">0.500</span><br>
+        dL/db &nbsp;&nbsp;&nbsp;&nbsp;= dL/dn × 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#10b981">0.500</span><br>
+        dL/d(bias) = dL/dn × 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span style="color:#10b981">0.500</span><br>
+        <br>
+        <span style="color:#475569">← multiplication: other operand becomes the gradient</span><br>
+        dL/dw₁ &nbsp;&nbsp;&nbsp;= dL/da × x₁ = 0.5 × 2 &nbsp;&nbsp;= <span style="color:#fbbf24;font-weight:700">1.000</span> &nbsp;<span style="color:#475569">← w₁ gradient</span><br>
+        dL/dx₁ &nbsp;&nbsp;&nbsp;= dL/da × w₁ = 0.5 × (−3) = <span style="color:#fbbf24;font-weight:700">−1.500</span><br>
+        dL/dw₂ &nbsp;&nbsp;&nbsp;= dL/db × x₂ = 0.5 × 0 &nbsp;&nbsp;= <span style="color:#fbbf24;font-weight:700">0.000</span><br>
+        dL/dx₂ &nbsp;&nbsp;&nbsp;= dL/db × w₂ = 0.5 × 1 &nbsp;&nbsp;= <span style="color:#fbbf24;font-weight:700">0.500</span>
+      </div>
+
+      <p style="margin:.5rem 0 0;font-size:.85rem;color:#64748b">Now do gradient descent: w₁ -= lr × 1.0 &nbsp; w₂ -= lr × 0.0 &nbsp; b -= lr × 0.5. Repeat.</p>
+    </div>
+
+    <div class="math-bridge">
+      <div class="bridge-title">🔗 Why this is the whole story</div>
+      A real neural network is hundreds of neurons stacked. Backprop applies this same chain rule at every single operation, in one backward sweep. Each weight gets its gradient. Then gradient descent updates every weight. That's training.
+    </div>
+
+    <div class="quiz">
+      <h3>🎯 Check Your Understanding</h3>
+
+      <div class="q" id="q13">
+        <div class="q-text">Q13. In the neuron above, what is the local gradient of <code>tanh</code> at <code>n=0.88</code> (where <code>tanh(0.88)=0.707</code>)?<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: local grad of tanh = 1 − tanh²(n) = 1 − o²</span></div>
+        <div class="q-row">
+          <input class="qi" id="q13i" type="number" step="0.01" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q13',0.5,0.02,'1 − 0.707² = 1 − 0.5 = 0.5')">
+          <button class="btn-p btn-sm" onclick="checkNum('q13',0.5,0.02,'1 − 0.707² = 1 − 0.5 = 0.5')">Check</button>
+          <button class="btn-reveal btn-sm" id="q13r" onclick="revealNum('q13',0.5,'1 − tanh²(0.88) = 1 − 0.5 = 0.5')">Show</button>
+        </div>
+        <div class="fb" id="q13f"></div>
+      </div>
+
+      <div class="q" id="q14">
+        <div class="q-text">Q14. In multiplication <code>e = a × b</code>, if <code>dL/de = 0.5</code> and <code>b = −3</code>, what is <code>dL/da</code>?<br>
+        <span style="color:var(--muted);font-size:.85rem">Hint: dL/da = dL/de × b</span></div>
+        <div class="q-row">
+          <input class="qi" id="q14i" type="number" step="0.01" placeholder="answer" onkeydown="if(event.key==='Enter')checkNum('q14',-1.5,0.05,'dL/da = 0.5 × (−3) = −1.5')">
+          <button class="btn-p btn-sm" onclick="checkNum('q14',-1.5,0.05,'dL/da = 0.5 × (−3) = −1.5')">Check</button>
+          <button class="btn-reveal btn-sm" id="q14r" onclick="revealNum('q14',-1.5,'0.5 × (−3) = −1.5. The other operand becomes the gradient.')">Show</button>
+        </div>
+        <div class="fb" id="q14f"></div>
+      </div>
+
+      <button class="cont-btn" id="cont7" onclick="finishAll()">🎉 Complete — Show my final score!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FINAL SCORE ══ -->
+<div class="ch" id="ch-fin" style="display:none;border-color:#a855f7;text-align:center;padding:2rem 1.5rem">
+  <div style="font-size:3rem;margin-bottom:.5rem">🎓</div>
+  <h2 id="fin-pts" style="color:#a855f7;font-size:2rem;margin:.25rem 0">0 / 12</h2>
+  <p style="color:#94a3b8;margin:.25rem 0">questions correct</p>
+  <p style="margin:.75rem 0 0;color:#e2e8f0;font-size:1.05rem">
+    You've built the intuition that powers every modern neural network.<br>
+    <strong>Derivative → Gradient → Backprop → Gradient Descent</strong> — that's the whole loop.
+  </p>
+  <div style="margin-top:1.25rem;background:var(--code);border-radius:10px;padding:1rem;font-family:monospace;font-size:.88rem;color:var(--muted);text-align:left">
+    for step in range(1000):<br>
+    &nbsp;&nbsp;loss = model(x)      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# forward pass<br>
+    &nbsp;&nbsp;loss.backward()       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# compute ALL gradients<br>
+    &nbsp;&nbsp;for w in weights:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;w -= lr * w.grad  &nbsp;&nbsp;# gradient descent
+  </div>
+</div>
+
+<script>
+// ─── utility helpers ─────────────────────────────────────
+const $ = id => document.getElementById(id);
+const val = id => parseFloat($(id).value);
+const txt = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+
+function initCanvas(id) {
+  const el = $(id);
+  if (!el) return null;
+  const ctx = el.getContext('2d');
+  const W = el.width, H = el.height;
+  ctx.clearRect(0, 0, W, H);
+  return { ctx, W, H, cx: W / 2, cy: H / 2 };
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color, dashed) {
+  ctx.strokeStyle = color; ctx.lineWidth = 2;
+  if (dashed) ctx.setLineDash([5, 4]); else ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.setLineDash([]);
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - 11 * Math.cos(angle - 0.4), y2 - 11 * Math.sin(angle - 0.4));
+  ctx.lineTo(x2 - 11 * Math.cos(angle + 0.4), y2 - 11 * Math.sin(angle + 0.4));
+  ctx.closePath(); ctx.fill();
+}
+
+function readSlider(rangeId, displayId, fmt) {
+  const v = val(rangeId);
+  const s = fmt ? fmt(v) : String(v);
+  txt(displayId, s);
+  return v;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// QUIZ HELPERS
+// ═══════════════════════════════════════════════════════════════
+let score = 0, answered = {}, picked = {};
+
+function updateScore() {
+  txt('fin-pts', score + ' / 12');
+}
+
+function pick(id, val, el) {
+  picked[id] = val;
+  const container = $(id + 'c');
+  if (!container) return;
+  container.querySelectorAll('.choice').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function showFb(fb, text, type) {
+  fb.textContent = text;
+  fb.className = 'fb show ' + type;
+}
+
+function checkChoice(id, correct, msg) {
+  if (answered[id]) return;
+  const val = picked[id];
+  if (!val) { alert('Pick an answer first!'); return; }
+  const fb = $(id + 'f');
+  if (val === correct) {
+    showFb(fb, '✅ ' + msg, 'ok');
+    if (!answered[id]) { score++; answered[id] = true; updateScore(); }
+  } else {
+    showFb(fb, '❌ Not quite — ' + msg, 'bad');
+  }
+}
+
+function revealChoice(id, correct, msg) {
+  if (answered[id]) return;
+  const fb = $(id + 'f');
+  showFb(fb, '💡 Answer: ' + correct + ' — ' + msg, 'hint');
+  answered[id] = true;
+}
+
+function checkNum(id, answer, tol, msg) {
+  if (answered[id]) return;
+  const inp = $(id + 'i');
+  const val = parseFloat(inp.value);
+  if (isNaN(val)) { alert('Enter a number first!'); return; }
+  const fb = $(id + 'f');
+  if (Math.abs(val - answer) <= tol) {
+    showFb(fb, '✅ Correct! ' + msg, 'ok');
+    inp.classList.add('ok');
+    if (!answered[id]) { score++; answered[id] = true; updateScore(); }
+  } else {
+    showFb(fb, '❌ Got ' + val + ', expected ~' + answer + '. ' + msg, 'bad');
+    inp.classList.add('bad');
+  }
+}
+
+function revealNum(id, answer, msg) {
+  if (answered[id]) return;
+  const fb = $(id + 'f');
+  showFb(fb, '💡 Answer: ' + answer + ' — ' + msg, 'hint');
+  answered[id] = true;
+}
+
+function unlock(n) {
+  const ch = $('ch' + n);
+  if (ch) {
+    ch.classList.remove('locked');
+    ch.style.opacity = '1';
+    ch.style.pointerEvents = 'auto';
+    ch.style.filter = 'none';
+    setTimeout(() => ch.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+  }
+}
+
+function finishAll() {
+  const fin = $('ch-fin');
+  fin.style.display = 'block';
+  fin.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 1 — ball on x² curve
+// ═══════════════════════════════════════════════════════════════
+function drawCh1(x) {
+  const c = initCanvas('cv1'); if (!c) return;
+  const { ctx, W, H } = c;
+  const cx = W / 2, cy = H - 30, scaleX = 100, scaleY = 8;
+
+  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(20, cy); ctx.lineTo(W - 20, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 10); ctx.lineTo(cx, H - 10); ctx.stroke();
+
+  ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let px = 20; px < W - 20; px++) {
+    const xv = (px - cx) / scaleX;
+    px === 20 ? ctx.moveTo(px, cy - xv*xv*scaleY) : ctx.lineTo(px, cy - xv*xv*scaleY);
+  }
+  ctx.stroke();
+
+  const slope = 2 * x, bx = cx + x*scaleX, by = cy - x*x*scaleY;
+  ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  for (let dt = -1.5; dt <= 1.5; dt += 0.1) {
+    const px = bx + dt*60, py = by - slope*dt*60/scaleX*scaleY;
+    dt === -1.5 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath(); ctx.arc(bx, by, 9, 0, Math.PI*2); ctx.fill();
+
+  ctx.fillStyle = '#64748b'; ctx.font = '11px monospace'; ctx.textAlign = 'center';
+  for (let i = -3; i <= 3; i++) ctx.fillText(i, cx + i*scaleX, cy + 14);
+}
+
+function ch1Update() {
+  const x = readSlider('sl_ch1', 'sl_ch1v', v => v.toFixed(1));
+  const dfx = 2 * x;
+  txt('ch1_x', x.toFixed(2));
+  txt('ch1_fx', (x*x).toFixed(4));
+  txt('ch1_dfx', dfx.toFixed(4));
+  txt('ch1_dir', dfx > 0.05 ? '⬆ uphill (positive slope)' : dfx < -0.05 ? '⬇ downhill (negative slope)' : '→ flat — at the minimum!');
+  drawCh1(x);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 1 — gradient descent step (new)
+// ═══════════════════════════════════════════════════════════════
+function gdUpdate() {
+  const x  = readSlider('gd_x',  'gd_xv',  v => v.toFixed(1));
+  const s  = readSlider('gd_s',  'gd_sv',  v => (v >= 0 ? '+' : '') + v.toFixed(1));
+  const lr = readSlider('gd_lr', 'gd_lrv', v => v.toFixed(2));
+
+  const xNew = x - lr * s, step = xNew - x;
+  const dir  = step > 0.001 ? '→ moved RIGHT (x increased)' : step < -0.001 ? '← moved LEFT (x decreased)' : '· no move (slope = 0)';
+  const col  = step > 0 ? '#10b981' : step < 0 ? '#ef4444' : '#fbbf24';
+
+  $('gd_box').innerHTML =
+    'x_new = x − lr × slope<br>' +
+    'x_new = ' + x.toFixed(2) + ' − ' + lr.toFixed(2) + ' × (' + (s >= 0 ? '+' : '') + s.toFixed(1) + ')<br>' +
+    'x_new = ' + x.toFixed(2) + ' − (' + (lr * s).toFixed(4) + ')<br>' +
+    '<span style="color:' + col + ';font-weight:700">x_new = ' + xNew.toFixed(4) + '</span><br>' +
+    '<span style="color:' + col + '">' + dir + '</span>';
+
+  const c2 = initCanvas('cv_gd'); if (!c2) return;
+  const { ctx: ctx2, W, H } = c2;
+  const ctx = ctx2, cx = W / 2, cy = H / 2, scale = 45;
+
+  // axis
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(40, cy); ctx.lineTo(W - 40, cy); ctx.stroke();
+  for (let i = -6; i <= 6; i++) {
+    const px = cx + i * scale;
+    ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px, cy - 6); ctx.lineTo(px, cy + 6); ctx.stroke();
+    ctx.fillStyle = '#64748b'; ctx.font = '11px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(i, px, cy + 18);
+  }
+
+  // dashed arrow x → xNew
+  const px1 = cx + Math.max(-6, Math.min(6, x)) * scale;
+  const px2 = cx + Math.max(-6, Math.min(6, xNew)) * scale;
+  ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(px1, cy); ctx.lineTo(px2, cy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // arrowhead
+  const aDir = px2 >= px1 ? 1 : -1;
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.moveTo(px2, cy); ctx.lineTo(px2 - aDir * 10, cy - 6); ctx.lineTo(px2 - aDir * 10, cy + 6); ctx.closePath(); ctx.fill();
+
+  // dots
+  ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(px1, cy, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('x', px1, cy + 4);
+  ctx.fillStyle = '#10b981'; ctx.beginPath(); ctx.arc(px2, cy, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText("x'", px2, cy + 4);
+
+  ctx.font = '11px monospace';
+  ctx.fillStyle = '#ef4444'; ctx.fillText('x=' + x.toFixed(1), px1, cy - 20);
+  ctx.fillStyle = '#10b981'; ctx.fillText("x'=" + xNew.toFixed(2), px2, cy - 20);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 1 — slope sign canvas
+// ═══════════════════════════════════════════════════════════════
+function drawSlopeSigns() {
+  const cv = document.getElementById('cv_signs');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const panels = [
+    {x0: 20,  slope:  5, color: '#10b981', label: 'slope = +5  →  going UP'},
+    {x0: 245, slope:  0, color: '#fbbf24', label: 'slope = 0  →  flat'},
+    {x0: 465, slope: -7, color: '#ef4444', label: 'slope = −7  →  going DOWN'},
+  ];
+
+  panels.forEach(({x0, slope, color, label}) => {
+    const cx = x0 + 90, cy = H / 2;
+    const len = 80, ang = Math.atan(slope / 15);
+    const dx = len * Math.cos(ang), dy = len * Math.sin(ang);
+
+    ctx.strokeStyle = color; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(cx - dx, cy + dy); ctx.lineTo(cx + dx, cy - dy); ctx.stroke();
+
+    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI * 2); ctx.fill();
+
+    // horizontal movement arrow
+    ctx.strokeStyle = '#ffffff55'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(cx - 40, cy + 28); ctx.lineTo(cx + 40, cy + 28); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ffffff55';
+    ctx.beginPath(); ctx.moveTo(cx + 40, cy + 28); ctx.lineTo(cx + 30, cy + 22); ctx.lineTo(cx + 30, cy + 34); ctx.closePath(); ctx.fill();
+
+    const fDir = slope > 0.1 ? '↑ f rises' : slope < -0.1 ? '↓ f drops' : '→ f flat';
+    ctx.fillStyle = color; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(fDir, cx, 28);
+    ctx.font = '11px monospace'; ctx.fillStyle = color;
+    ctx.fillText(label, cx, H - 10);
+    ctx.textAlign = 'left';
+  });
+}
+
+function slopeSignUpdate() {
+  const slope = readSlider('sg_slope', 'sg_sv', v => (v >= 0 ? '+' : '') + v.toFixed(1));
+  const h     = readSlider('sg_h',     'sg_hv', v => v.toFixed(2));
+  const change = slope * h;
+  const dir = change > 0.001 ? '⬆ INCREASES by ' : change < -0.001 ? '⬇ DECREASES by ' : '↔ barely changes ';
+  const col = change > 0 ? '#10b981' : change < 0 ? '#ef4444' : '#fbbf24';
+  $('sg_result').innerHTML =
+    'slope × h = ' + slope.toFixed(1) + ' × ' + h.toFixed(2) +
+    ' = <span style="color:' + col + ';font-weight:700">' + change.toFixed(4) + '</span>' +
+    '<br>So f(x+h) ' + dir + '<span style="color:' + col + ';font-weight:700">' + Math.abs(change).toFixed(4) + '</span>' +
+    (change < 0 ? '&nbsp; ← negative slope always makes f go DOWN when x increases' :
+     change > 0 ? '&nbsp; ← positive slope always makes f go UP when x increases' :
+     '&nbsp; ← zero slope: f barely changes');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 2 — limit convergence table
+// ═══════════════════════════════════════════════════════════════
+function limUpdate() {
+  const x = readSlider('lim_x', 'lim_xv', v => v.toFixed(1));
+  const f = v => v * v;
+  const trueDeriv = 2 * x;
+  const hs = [1, 0.5, 0.1, 0.01, 0.001, 0.0001];
+  const tbody = $('lim_table');
+  while (tbody.rows.length > 1) tbody.deleteRow(1);
+  hs.forEach(h => {
+    const actual = f(x + h) - f(x);
+    const ratio = actual / h;
+    const err = Math.abs(ratio - trueDeriv);
+    const isSmall = h <= 0.01;
+    const row = tbody.insertRow();
+    row.style.borderBottom = '1px solid #1d1d30';
+    if (isSmall) row.style.background = '#0d1a0d';
+    row.innerHTML =
+      '<td style="padding:.45rem .5rem;color:#e2e8f0">' + h + '</td>' +
+      '<td style="padding:.45rem .5rem;color:#a855f7">' + actual.toFixed(6) + '</td>' +
+      '<td style="padding:.45rem .5rem;color:' + (isSmall ? '#fbbf24' : '#94a3b8') + ';font-weight:' + (isSmall ? '700' : '400') + '">' + ratio.toFixed(6) + '</td>' +
+      '<td style="padding:.45rem .5rem;color:#34d399;font-weight:700">' + trueDeriv.toFixed(6) + '</td>' +
+      '<td style="padding:.45rem .5rem;color:' + (err < 0.001 ? '#10b981' : '#94a3b8') + '">' + err.toFixed(6) + '</td>';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 2 — nudge predictor
+// ═══════════════════════════════════════════════════════════════
+function nudgeUpdate() {
+  const x = readSlider('np_x', 'np_xv', v => v.toFixed(1));
+  const h = readSlider('np_h', 'np_hv', v => v.toFixed(3));
+  const f = v => v * v * v - 2 * v + 1;
+  const fp = v => 3 * v * v - 2;
+  const predicted = fp(x) * h;
+  const actual = f(x + h) - f(x);
+  const errPct = actual !== 0 ? Math.abs((actual - predicted) / actual * 100) : 0;
+  txt('np_fx', f(x).toFixed(4));
+  txt('np_dfx', fp(x).toFixed(4));
+  txt('np_pred', predicted.toFixed(6));
+  txt('np_actual', actual.toFixed(6));
+  txt('np_err', errPct.toFixed(4) + '%');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 3 — room temperature
+// ═══════════════════════════════════════════════════════════════
+function roomUpdate() {
+  const h = readSlider('rm_h', 'rm_hv', v => v.toFixed(1));
+  const f = readSlider('rm_f', 'rm_fv', v => v.toFixed(1));
+  const temp = h * 3 - f * 2 + 15;
+  txt('rm_t', temp.toFixed(1) + ' °C');
+  txt('rm_explain', 'temp = ' + h.toFixed(1) + '×3 − ' + f.toFixed(1) + '×2 + 15 = ' + (h*3).toFixed(1) + ' − ' + (f*2).toFixed(1) + ' + 15 = ' + temp.toFixed(1) + '°C');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 3 — pizza price
+// ═══════════════════════════════════════════════════════════════
+function pizzaUpdate() {
+  const s = readSlider('pz_s', 'pz_sv', v => String(Math.round(v)));
+  const t = readSlider('pz_t', 'pz_tv', v => String(Math.round(v)));
+  const price = s * 2 + t * 1.5;
+  txt('pz_p', '$' + price.toFixed(2));
+  txt('pz_add', '$1.50');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 4 — gradient arrow canvas
+// ═══════════════════════════════════════════════════════════════
+function drawGradArrow(a, b) {
+  const c = initCanvas('grad-canvas'); if (!c) return;
+  const { ctx, W, H, cx, cy } = c;
+  const scale = 55;
+
+  // grid
+  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+  for (let i = -3; i <= 3; i++) {
+    ctx.beginPath(); ctx.moveTo(cx + i * scale, 10); ctx.lineTo(cx + i * scale, H - 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(10, cy + i * scale); ctx.lineTo(W - 10, cy + i * scale); ctx.stroke();
+  }
+
+  // axes
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(10, cy); ctx.lineTo(W - 10, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 10); ctx.lineTo(cx, H - 10); ctx.stroke();
+
+  // current point
+  const px = cx + a * scale, py = cy - b * scale;
+
+  // gradient arrow (gradient of a²+b² is [2a, 2b])
+  const ga = 2 * a, gb = 2 * b;
+  const mag = Math.sqrt(ga * ga + gb * gb);
+  const arrowScale = mag > 0 ? Math.min(60, 25 / mag * scale) : 0;
+  const ax = px + ga * arrowScale, ay = py - gb * arrowScale;
+
+  // gradient (uphill) arrow — red
+  if (mag > 0.01) {
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ax, ay); ctx.stroke();
+    const angle = Math.atan2(ay - py, ax - px);
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(ax - 12 * Math.cos(angle - 0.4), ay - 12 * Math.sin(angle - 0.4));
+    ctx.lineTo(ax - 12 * Math.cos(angle + 0.4), ay - 12 * Math.sin(angle + 0.4));
+    ctx.closePath(); ctx.fill();
+
+    // descent direction arrow — green (opposite)
+    const bx = px - ga * arrowScale, by = py + gb * arrowScale;
+    ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2.5; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.setLineDash([]);
+    const angle2 = Math.atan2(by - py, bx - px);
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.lineTo(bx - 12 * Math.cos(angle2 - 0.4), by - 12 * Math.sin(angle2 - 0.4));
+    ctx.lineTo(bx - 12 * Math.cos(angle2 + 0.4), by - 12 * Math.sin(angle2 + 0.4));
+    ctx.closePath(); ctx.fill();
+  }
+
+  // point dot
+  ctx.fillStyle = '#a855f7';
+  ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI * 2); ctx.fill();
+
+  // axis labels
+  ctx.fillStyle = '#64748b'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+  for (let i = -3; i <= 3; i++) {
+    if (i !== 0) {
+      ctx.fillText(i, cx + i * scale, cy + 14);
+      ctx.fillText(i, cx + 14, cy - i * scale + 4);
+    }
+  }
+  ctx.fillStyle = '#64748b'; ctx.font = '12px monospace';
+  ctx.fillText('a →', W - 25, cy + 14);
+  ctx.fillText('↑ b', cx + 14, 16);
+}
+
+function gradUpdate() {
+  const a = readSlider('ga', 'gav', v => v.toFixed(1));
+  const b = readSlider('gb', 'gbv', v => v.toFixed(1));
+  const da = 2*a, db = 2*b;
+  txt('g_out',  (a*a + b*b).toFixed(4));
+  txt('g_da',   da.toFixed(4));
+  txt('g_db',   db.toFixed(4));
+  txt('g_grad', '[' + da.toFixed(2) + ', ' + db.toFixed(2) + ']');
+  drawGradArrow(a, b);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 5 — chain rule currency demo
+// ═══════════════════════════════════════════════════════════════
+function chainUpdate() {
+  const usd = readSlider('cc_usd', 'cc_usdv', v => v.toFixed(1));
+  const r1  = readSlider('cc_r1',  'cc_r1v',  v => v.toFixed(2));
+  const r2  = readSlider('cc_r2',  'cc_r2v',  v => v.toFixed(0));
+  const eur = usd * r1;
+  const jpy = eur * r2;
+  // chain rule: dJPY/dUSD = r1 * r2
+  const chainRate = r1 * r2;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 6 — gradient descent animation
+// ═══════════════════════════════════════════════════════════════
+let gdTimer = null, gdW = 4, gdStep = 0;
+
+function gdDraw() {
+  const c = initCanvas('gd-canvas'); if (!c) return;
+  const { ctx, W, H } = c;
+  const cx = W / 2, cy = H - 30, scaleX = 50, scaleY = 5;
+
+  // w² parabola
+  ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let px = 20; px < W - 20; px++) {
+    const wv = (px - cx) / scaleX;
+    const py = cy - wv * wv * scaleY;
+    px === 20 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // axis
+  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(20, cy); ctx.lineTo(W - 20, cy); ctx.stroke();
+  ctx.fillStyle = '#64748b'; ctx.font = '11px monospace'; ctx.textAlign = 'center';
+  for (let i = -5; i <= 5; i++) ctx.fillText(i, cx + i * scaleX, cy + 14);
+
+  // ball
+  const bx = cx + gdW * scaleX;
+  const by = cy - gdW * gdW * scaleY;
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI * 2); ctx.fill();
+
+  txt('an_step', gdStep);
+  txt('an_w',    gdW.toFixed(4));
+  txt('an_loss', (gdW*gdW).toFixed(4));
+  txt('an_grad', (2*gdW).toFixed(4));
+}
+
+function gdReset() {
+  clearInterval(gdTimer); gdTimer = null;
+  gdW = parseFloat($('an_start').value);
+  gdStep = 0;
+  txt('an_sv',  gdW.toFixed(1));
+  txt('an_lrv', val('an_lr').toFixed(2));
+  txt('an_btn', '▶ Run');
+  gdDraw();
+}
+
+function gdToggle() {
+  if (gdTimer) {
+    clearInterval(gdTimer); gdTimer = null;
+    txt('an_btn', '▶ Run');
+  } else {
+    txt('an_btn', '⏸ Pause');
+    gdTimer = setInterval(() => {
+      const lr = val('an_lr');
+      const grad = 2 * gdW;
+      gdW -= lr * grad;
+      gdStep++;
+      gdDraw();
+      if (Math.abs(gdW) < 0.001 || gdStep > 500) {
+        clearInterval(gdTimer); gdTimer = null;
+        txt('an_btn', '✅ Done');
+      }
+    }, 80);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 7 — neuron forward / backward pass
+// ═══════════════════════════════════════════════════════════════
+const NEURON = {
+  x1: 2, w1: -3, x2: 0, w2: 1, b: 6.88,
+  a: 0, bv: 0, n: 0, o: 0,
+  // gradients
+  go: 1, gn: 0, ga: 0, gb: 0, gbias: 0,
+  gw1: 0, gx1: 0, gw2: 0, gx2: 0,
+  phase: 'reset'
+};
+
+const NODE_POS = {
+  x1:    {x: 40,  y: 80},
+  w1:    {x: 40,  y: 140},
+  x2:    {x: 40,  y: 200},
+  w2:    {x: 40,  y: 260},
+  b:     {x: 40,  y: 155},
+  mul1:  {x: 200, y: 110},
+  mul2:  {x: 200, y: 230},
+  add:   {x: 370, y: 170},
+  tanh:  {x: 530, y: 170},
+  out:   {x: 680, y: 170},
+};
+
+function neuronReset() {
+  NEURON.phase = 'reset';
+  Object.assign(NEURON, {a:0,bv:0,n:0,o:0,go:1,gn:0,ga:0,gb:0,gbias:0,gw1:0,gx1:0,gw2:0,gx2:0});
+  txt('neuron_explain', 'Press Forward Pass to run the neuron and see how values flow left → right.');
+  neuronDraw();
+}
+
+function neuronStep(dir) {
+  if (dir === 'forward') {
+    NEURON.a  = NEURON.x1 * NEURON.w1;
+    NEURON.bv = NEURON.x2 * NEURON.w2;
+    NEURON.n  = NEURON.a + NEURON.bv + NEURON.b;
+    NEURON.o  = Math.tanh(NEURON.n);
+    NEURON.phase = 'forward';
+    txt('neuron_explain',
+      '✅ FORWARD PASS complete.\n' +
+      'a = x₁×w₁ = 2×(−3) = ' + NEURON.a.toFixed(2) +
+      ' | b = x₂×w₂ = 0×1 = ' + NEURON.bv.toFixed(2) +
+      ' | n = a+b+bias = ' + NEURON.n.toFixed(2) +
+      ' | output = tanh(n) = ' + NEURON.o.toFixed(3) +
+      '\n\nNow press Backward Pass to see gradients flow right → left.');
+  } else {
+    NEURON.go    = 1;
+    NEURON.gn    = NEURON.go * (1 - NEURON.o * NEURON.o);
+    NEURON.ga    = NEURON.gn;
+    NEURON.gb    = NEURON.gn;
+    NEURON.gbias = NEURON.gn;
+    NEURON.gw1   = NEURON.ga * NEURON.x1;
+    NEURON.gx1   = NEURON.ga * NEURON.w1;
+    NEURON.gw2   = NEURON.gb * NEURON.x2;
+    NEURON.gx2   = NEURON.gb * NEURON.w2;
+    NEURON.phase = 'backward';
+    txt('neuron_explain',
+      '✅ BACKWARD PASS complete.\n' +
+      'dL/do=1.00 | do/dn=1−o²=' + NEURON.gn.toFixed(3) +
+      ' | dL/dn=' + NEURON.gn.toFixed(3) + '\n' +
+      'Addition passes gradient unchanged → dL/da=dL/db=dL/dbias=' + NEURON.ga.toFixed(3) + '\n' +
+      'Multiplication flips operands → dL/dw₁=dL/da×x₁=' + NEURON.gw1.toFixed(3) +
+      ' | dL/dw₂=' + NEURON.gw2.toFixed(3) + '\n\n' +
+      'Now do gradient descent: w₁ -= lr×' + NEURON.gw1.toFixed(3));
+  }
+  neuronDraw();
+}
+
+function drawNode(ctx, x, y, label, value, grad, phase, color) {
+  const W = 80, H = 44, r = 8;
+  const nx = x - W/2, ny = y - H/2;
+  ctx.fillStyle = color || '#1e293b';
+  ctx.beginPath();
+  ctx.roundRect(nx, ny, W, H, r);
+  ctx.fill();
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(label, x, y - 5);
+
+  if (phase !== 'reset' && value !== null) {
+    ctx.fillStyle = '#a855f7'; ctx.font = '10px monospace';
+    ctx.fillText(value, x, y + 9);
+  }
+  if (phase === 'backward' && grad !== null) {
+    ctx.fillStyle = '#10b981'; ctx.font = 'bold 10px monospace';
+    ctx.fillText('∇' + grad, x, y + 20);
+  }
+}
+
+function drawOpNode(ctx, x, y, op, inVal, outVal, grad, phase) {
+  ctx.fillStyle = '#0a1f30';
+  ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(op, x, y + 5);
+  if (phase !== 'reset') {
+    ctx.fillStyle = '#a855f7'; ctx.font = '10px monospace';
+    ctx.fillText(outVal, x, y + 20);
+  }
+  if (phase === 'backward') {
+    ctx.fillStyle = '#10b981'; ctx.font = 'bold 10px monospace';
+    ctx.fillText('∇' + grad, x, y + 32);
+  }
+}
+
+function neuronDraw() {
+  const c = initCanvas('cv_neuron'); if (!c) return;
+  const { ctx, W, H } = c;
+  const N = NEURON, p = NEURON.phase;
+
+  // wires (draw before nodes)
+  const wires = [
+    [NODE_POS.x1, NODE_POS.mul1], [NODE_POS.w1, NODE_POS.mul1],
+    [NODE_POS.x2, NODE_POS.mul2], [NODE_POS.w2, NODE_POS.mul2],
+    [NODE_POS.mul1, NODE_POS.add], [NODE_POS.mul2, NODE_POS.add],
+    [NODE_POS.b,    NODE_POS.add],
+    [NODE_POS.add,  NODE_POS.tanh],
+    [NODE_POS.tanh, NODE_POS.out],
+  ];
+  wires.forEach(([a, b]) => {
+    ctx.strokeStyle = p === 'backward' ? '#10b98144' : '#33415588';
+    ctx.lineWidth = 2; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  });
+
+  // input/weight leaf nodes
+  const fmt = v => (v >= 0 ? '+' : '') + v.toFixed(2);
+  drawNode(ctx, NODE_POS.x1.x, NODE_POS.x1.y, 'x₁=2', null, fmt(N.gx1), p, '#1a2040');
+  drawNode(ctx, NODE_POS.w1.x, NODE_POS.w1.y, 'w₁=−3', null, fmt(N.gw1), p, '#1a2a1a');
+  drawNode(ctx, NODE_POS.x2.x, NODE_POS.x2.y, 'x₂=0', null, fmt(N.gx2), p, '#1a2040');
+  drawNode(ctx, NODE_POS.w2.x, NODE_POS.w2.y, 'w₂=1', null, fmt(N.gw2), p, '#1a2a1a');
+
+  // op nodes
+  drawOpNode(ctx, NODE_POS.mul1.x, NODE_POS.mul1.y, '×', null,
+    p !== 'reset' ? N.a.toFixed(2) : '?', fmt(N.ga), p);
+  drawOpNode(ctx, NODE_POS.mul2.x, NODE_POS.mul2.y, '×', null,
+    p !== 'reset' ? N.bv.toFixed(2) : '?', fmt(N.gb), p);
+  drawOpNode(ctx, NODE_POS.add.x, NODE_POS.add.y, '+', null,
+    p !== 'reset' ? N.n.toFixed(2) : '?', fmt(N.gn), p);
+  drawOpNode(ctx, NODE_POS.tanh.x, NODE_POS.tanh.y, 'tanh', null,
+    p !== 'reset' ? N.o.toFixed(3) : '?', fmt(N.go), p);
+
+  // bias node (connects to add)
+  ctx.strokeStyle = '#33415588'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(80, 230); ctx.lineTo(NODE_POS.add.x - 22, NODE_POS.add.y); ctx.stroke();
+  drawNode(ctx, 80, 230, 'b=6.88', null, fmt(N.gbias), p, '#2a1a0a');
+
+  // output node
+  const outColor = p === 'backward' ? '#0d2a0d' : p === 'forward' ? '#1a0a2a' : '#1e293b';
+  drawNode(ctx, NODE_POS.out.x, NODE_POS.out.y, 'output',
+    p !== 'reset' ? N.o.toFixed(3) : '?',
+    p === 'backward' ? '+1.000' : null, p, outColor);
+
+  // labels
+  ctx.fillStyle = '#334155'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('forward →', W/2, H - 8);
+  if (p === 'backward') {
+    ctx.fillStyle = '#10b981';
+    ctx.fillText('← backward (gradients)', W/2 - 60, H - 8);
+  }
+
+  // legend
+  ctx.font = '10px monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#a855f7'; ctx.fillText('purple = value', 10, 18);
+  ctx.fillStyle = '#10b981'; ctx.fillText('green ∇ = gradient', 10, 30);
+}
+
+
+// ── backward pass step-by-step animation ────────────────────
+const BP = {
+  step: -1,
+  o: Math.tanh(0.8813),
+  n: 0.8813,
+  // o and tanh are merged: o IS the output of tanh, same node
+  nodes: [
+    { id:'L',    x:640, label:'L',          val:'= o',          grad:null },
+    { id:'o',    x:490, label:'o = tanh(n)', val:'0.707',        grad:null },
+    { id:'n',    x:330, label:'n (sum)',     val:'0.881',        grad:null },
+    { id:'plus', x:180, label:'+',          val:'node',         grad:null },
+    { id:'a',    x: 55, label:'a=x₁w₁',    val:'−6',           grad:null },
+  ]
+};
+
+const BP_STEPS = [
+  {
+    active: 'L',
+    title: 'Step 1 — Seed: dL/dL = 1',
+    body: `Every backward pass starts here. L is the loss. How does L change with respect to itself? Always 1.<br><br>In this walkthrough L = o, so the seed lands on o: <strong>dL/do = 1</strong>.<br>This is not about o's value (0.707) — it is just the starting point of the chain.`,
+    grads: { L:'1.000' }
+  },
+  {
+    active: 'o',
+    title: 'Step 2 — At the tanh node: o = tanh(n)',
+    body: `<strong>o and tanh are NOT separate things.</strong> o is defined as tanh(n) — it is the output of the tanh operation.<br><br>So asking "how does o change when n changes?" is exactly asking for the derivative of tanh:<br><code>do/dn = d/dn [tanh(n)] = 1 − tanh(n)² = 1 − o²</code><br><br>= 1 − 0.707² = 1 − 0.500 = <strong>0.500</strong><br><br>Chain rule: <strong>dL/dn = dL/do × do/dn = 1 × 0.500 = 0.500</strong>`,
+    grads: { L:'1.000', o:'0.500' }
+  },
+  {
+    active: 'n',
+    title: 'Step 3 — At n (sum node): dL/dn = 0.500',
+    body: `We now have <strong>dL/dn = 0.500</strong>.<br>n = a + x₂w₂ + bias — a sum of three inputs.<br><br>Addition rule: gradient passes through unchanged to every branch.<br>dL/da = 0.500 &nbsp;|&nbsp; dL/d(x₂w₂) = 0.500 &nbsp;|&nbsp; dL/dbias = 0.500`,
+    grads: { L:'1.000', o:'0.500', n:'0.500', plus:'0.500' }
+  },
+  {
+    active: 'plus',
+    title: 'Step 4 — At + node: gradient fans out',
+    body: `Addition is transparent to gradients — each input receives the full gradient unchanged.<br><br>This is why bias always gets the same gradient as n: it is just another input to the sum.`,
+    grads: { L:'1.000', o:'0.500', n:'0.500', plus:'0.500' }
+  },
+  {
+    active: 'a',
+    title: 'Step 5 — Through multiplication: dL/dw₁',
+    body: `<strong>a = x₁ × w₁</strong> — so we need two gradients: one for w₁, one for x₁.<br><br>` +
+      `<u>Step A — get dL/da first (chain through addition):</u><br>` +
+      `n = a + x₂w₂ + b &nbsp;→&nbsp; dn/da = 1 (a has coefficient 1 in n)<br>` +
+      `dL/da = dL/dn × dn/da = 0.500 × 1 = <strong>0.500</strong><br><br>` +
+      `<u>Step B — dL/dw₁ (differentiate a=x₁w₁ w.r.t. w₁):</u><br>` +
+      `da/dw₁ = x₁ = 2 &nbsp;&nbsp;(w₁ is the variable → x₁ stays behind)<br>` +
+      `dL/dw₁ = dL/da × da/dw₁ = 0.500 × 2 = <strong>1.000</strong><br><br>` +
+      `<u>Step C — dL/dx₁ (differentiate a=x₁w₁ w.r.t. x₁):</u><br>` +
+      `da/dx₁ = w₁ = −3 &nbsp;(x₁ is the variable → w₁ stays behind)<br>` +
+      `dL/dx₁ = dL/da × da/dx₁ = 0.500 × (−3) = <strong>−1.500</strong><br><br>` +
+      `<u>Same for the x₂w₂ branch:</u><br>` +
+      `dL/dw₂ = dL/db × x₂ = 0.500 × 0 = <strong>0.000</strong> &nbsp;(x₂=0 → w₂ learned nothing)<br>` +
+      `dL/dx₂ = dL/db × w₂ = 0.500 × 1 = <strong>0.500</strong><br><br>` +
+      `<span style="color:#94a3b8">Pattern: for any a = p×q, da/dp = q and da/dq = p — the other operand stays behind.</span>`,
+    grads: { L:'1.000', o:'0.500', n:'0.500', plus:'0.500', a:'1.000' }
+  }
+];
+
+function bpReset() {
+  BP.step = -1;
+  document.getElementById('bp_explain').innerHTML = 'Press <strong>Next Step</strong> to walk through the backward pass one chain rule at a time.';
+  bpDraw({}, null);
+}
+
+function bpStep() {
+  BP.step = Math.min(BP.step + 1, BP_STEPS.length - 1);
+  const s = BP_STEPS[BP.step];
+  document.getElementById('bp_explain').innerHTML =
+    '<strong style="color:#60a5fa">' + s.title + '</strong><br>' + s.body;
+  bpDraw(s.grads, s.active);
+}
+
+function bpDraw(grads, activeId) {
+  const canvas = document.getElementById('cv_bp');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 720, H = 200;
+  canvas.width = W; canvas.height = H;
+
+  // dark bg
+  ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,W,H);
+
+  const nodes = BP.nodes;
+  const cy = 90;
+
+  // draw arrows right-to-left (backward direction)
+  const arrowCols = ['#10b981','#10b981','#10b981','#10b981','#10b981'];
+  for (let i = 0; i < nodes.length - 1; i++) {
+    const from = nodes[i], to = nodes[i+1];
+    const hasGrad = grads[from.id] && grads[to.id];
+    const col = hasGrad ? '#10b981' : '#1e3a5f';
+    ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.setLineDash(hasGrad ? [] : [5,4]);
+    ctx.beginPath(); ctx.moveTo(from.x - 36, cy); ctx.lineTo(to.x + 36, cy); ctx.stroke();
+    ctx.setLineDash([]);
+    if (hasGrad) {
+      // arrowhead pointing LEFT (backward)
+      const ax = to.x + 36;
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(ax, cy);
+      ctx.lineTo(ax+10, cy-5); ctx.lineTo(ax+10, cy+5);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  // draw nodes
+  nodes.forEach(node => {
+    const isActive = node.id === activeId;
+    const hasGrad  = grads[node.id] != null;
+    const isTanh   = node.id === 'plus';
+    const r = isTanh ? 28 : 34;
+
+    // circle
+    ctx.fillStyle = isActive ? '#1e3a5f' : '#0a1f2a';
+    ctx.beginPath(); ctx.arc(node.x, cy, r, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = isActive ? '#60a5fa' : (hasGrad ? '#10b981' : '#334155');
+    ctx.lineWidth = isActive ? 3 : 1.5; ctx.stroke();
+
+    // label
+    ctx.fillStyle = isActive ? '#60a5fa' : '#e2e8f0';
+    ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(node.label, node.x, cy - 8);
+
+    // value
+    if (node.val !== 'node') {
+      ctx.fillStyle = '#a855f7'; ctx.font = '10px monospace';
+      ctx.fillText(node.val, node.x, cy + 6);
+    }
+
+    // gradient
+    if (hasGrad) {
+      ctx.fillStyle = '#10b981'; ctx.font = 'bold 11px monospace';
+      ctx.fillText('∇' + grads[node.id], node.x, cy + 20);
+    }
+
+    // section label above
+    ctx.fillStyle = '#475569'; ctx.font = '9px monospace';
+    const topLabels = { L:'LOSS', o:'o = tanh(n)', n:'SUM', plus:'ADD', a:'MULT' };
+    ctx.fillText(topLabels[node.id] || '', node.x, cy - r - 8);
+  });
+
+  // legend
+  ctx.font = '10px monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#10b981'; ctx.fillText('← gradient flows this way', 10, H-12);
+  ctx.fillStyle = '#60a5fa'; ctx.fillText('■ active node', 300, H-12);
+  ctx.fillStyle = '#a855f7'; ctx.fillText('value', 420, H-12);
+  ctx.fillStyle = '#10b981'; ctx.fillText('∇ gradient', 490, H-12);
+}
+
+// ── neuron anatomy diagram ───────────────────────────────────
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
+  ctx.lineTo(x+w, y+h-r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+  ctx.lineTo(x+r, y+h); ctx.arcTo(x, y+h, x, y+h-r, r);
+  ctx.lineTo(x, y+r); ctx.arcTo(x, y, x+r, y, r);
+  ctx.closePath();
+}
+
+function drawAnatomy() {
+  const el = document.getElementById('cv_anatomy');
+  if (!el) { console.warn('cv_anatomy not found'); return; }
+  const ctx = el.getContext('2d');
+  const W = 720, H = 260;
+  el.width = W; el.height = H;
+  ctx.clearRect(0,0,W,H);
+  // dark background so we can confirm drawing works
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0,0,W,H);
+  const c = { ctx, W, H };
+
+  const arrowLine = (x1,y1,x2,y2,col) => {
+    ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    const a = Math.atan2(y2-y1,x2-x1);
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-11*Math.cos(a-0.4),y2-11*Math.sin(a-0.4));
+    ctx.lineTo(x2-11*Math.cos(a+0.4),y2-11*Math.sin(a+0.4));
+    ctx.closePath(); ctx.fill();
+  };
+
+  const circ = (x,y,r,bg,stroke,label,sub,lc) => {
+    ctx.fillStyle=bg; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.fillStyle=lc||'#e2e8f0'; ctx.font='bold 13px monospace'; ctx.textAlign='center';
+    ctx.fillText(label,x,y+5);
+    if(sub){ ctx.fillStyle='#94a3b8'; ctx.font='10px monospace'; ctx.fillText(sub,x,y+20); }
+  };
+
+  const boxNode = (x,y,bw,bh,bg,stroke,label,sub) => {
+    ctx.fillStyle=bg; rrect(ctx,x-bw/2,y-bh/2,bw,bh,8); ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=2.5; rrect(ctx,x-bw/2,y-bh/2,bw,bh,8); ctx.stroke();
+    ctx.fillStyle='#fbbf24'; ctx.font='bold 13px monospace'; ctx.textAlign='center';
+    ctx.fillText(label,x,y+5);
+    if(sub){ ctx.fillStyle='#94a3b8'; ctx.font='9px monospace'; ctx.fillText(sub,x,y+20); }
+  };
+
+  const sigX=290, sigY=130, tanhX=460, outX=640;
+  const x1y=70, x2y=175, biasY=230;
+
+  // section labels
+  ctx.fillStyle='#334155'; ctx.font='bold 10px monospace'; ctx.textAlign='center';
+  ['INPUTS','WEIGHTS on wires','SUM + BIAS','ACTIVATION','OUTPUT'].forEach((t,i)=>{
+    const xs=[65,175,sigX,tanhX,outX];
+    ctx.fillText(t,xs[i],18);
+  });
+
+  // wires
+  arrowLine(90,  x1y,  sigX-32, sigY-12, '#a855f7');
+  arrowLine(90,  x2y,  sigX-32, sigY+12, '#a855f7');
+  arrowLine(sigX,biasY,sigX,    sigY+32,  '#fbbf24');
+  arrowLine(sigX+32,sigY, tanhX-44,sigY,  '#3b82f6');
+  arrowLine(tanhX+44,sigY,outX-30,sigY,  '#10b981');
+
+  // wire labels
+  ctx.textAlign='center';
+  ctx.fillStyle='#10b981'; ctx.font='bold 11px monospace';
+  ctx.fillText('w₁=−3',175,x1y-14);
+  ctx.fillText('w₂=1', 175,x2y+18);
+  ctx.fillStyle='#3b82f6';
+  ctx.fillText('n=0.88',(sigX+tanhX)/2,sigY-14);
+  ctx.fillStyle='#10b981';
+  ctx.fillText('o=0.707',(tanhX+outX)/2,sigY-14);
+
+  // input nodes
+  circ(65, x1y, 26, '#1a1040','#a855f7','x₁','=2','#a855f7');
+  circ(65, x2y, 26, '#1a1040','#a855f7','x₂','=0','#a855f7');
+
+  // Σ node
+  circ(sigX,sigY,34,'#0a1f2a','#3b82f6','Σ',null,'#3b82f6');
+  ctx.fillStyle='#475569'; ctx.font='9px monospace'; ctx.textAlign='center';
+  ctx.fillText('x₁w₁+x₂w₂+b',sigX,sigY+50);
+
+  // bias node
+  circ(sigX,biasY,24,'#2a1a0a','#fbbf24','b',null,'#fbbf24');
+  ctx.fillStyle='#94a3b8'; ctx.font='10px monospace';
+  ctx.fillText('=6.88',sigX,biasY+38);
+
+  // tanh box
+  boxNode(tanhX,sigY,90,46,'#1a0a2a','#ef4444','tanh','→ (−1,+1)');
+
+  // output node
+  circ(outX,sigY,32,'#0d2018','#10b981','out',null,'#10b981');
+  ctx.fillStyle='#10b981'; ctx.font='bold 11px monospace';
+  ctx.fillText('=0.707',outX,sigY+48);
+
+  // legend bottom-right
+  ctx.textAlign='left'; ctx.font='10px monospace';
+  ctx.fillStyle='#a855f7'; ctx.fillText('● inputs',W-130,H-10);
+  ctx.fillStyle='#3b82f6'; ctx.fillText('● sum node',W-130,H-24);
+  ctx.fillStyle='#ef4444'; ctx.fillText('■ tanh',W-55,H-10);
+  ctx.fillStyle='#10b981'; ctx.fillText('● output',W-55,H-24);
+}
+
+
+function jumpTo(n) {
+  // unlock the chapter if locked
+  for (let i = 1; i <= n; i++) {
+    const ch = $('ch' + i);
+    if (ch) { ch.classList.remove('locked'); ch.style.opacity='1'; ch.style.pointerEvents='auto'; ch.style.filter='none'; }
+  }
+  const ch = $('ch' + n);
+  if (ch) setTimeout(() => ch.scrollIntoView({behavior:'smooth', block:'start'}), 80);
+
+  // update nav highlight
+  document.querySelectorAll('.ch-nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', i+1 === n);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 8 — simple expression backprop
+// ═══════════════════════════════════════════════════════════════
+const EXPR = { step:-1 };
+const EXPR_NODES = [
+  { id:'L', x:660, label:'L',   val:'-8' },
+  { id:'df',x:530, label:'d×f', val:'node' },
+  { id:'d', x:400, label:'d',   val:'4' },
+  { id:'ec',x:270, label:'e+c', val:'node' },
+  { id:'e', x:140, label:'e',   val:'-6' },
+  { id:'ab',x: 55, label:'a×b', val:'node' },
+];
+const EXPR_STEPS = [
+  { active:'L',  grads:{ L:'1' },
+    title:'Step 1 — Seed: dL/dL = 1',
+    body:`Seed the backward pass. L is the loss — it changes at rate 1 with respect to itself.` },
+  { active:'df', grads:{ L:'1', df:'', d:'-2', f_node:'4' },
+    title:'Step 2 — L = d × f: multiply node',
+    body:`dL/dd = dL/dL × f = 1 × (−2) = <strong>−2</strong><br>dL/df = dL/dL × d = 1 × 4 = <strong>4</strong><br>Rule: each operand gets the OTHER operand × incoming gradient.` },
+  { active:'ec', grads:{ L:'1', d:'-2', ec:'', e:'-2', c:'-2' },
+    title:'Step 3 — d = e + c: addition node',
+    body:`Addition passes the gradient unchanged to both inputs.<br>dL/de = dL/dd × 1 = <strong>−2</strong><br>dL/dc = dL/dd × 1 = <strong>−2</strong>` },
+  { active:'ab', grads:{ L:'1', d:'-2', e:'-2', ab:'', a:'6', b:'-4' },
+    title:'Step 4 — e = a × b: multiply node',
+    body:`dL/da = dL/de × b = −2 × (−3) = <strong>6</strong><br>dL/db = dL/de × a = −2 × 2 = <strong>−4</strong><br><br>Done! Every input has a gradient. Nudge a by +0.01 → L increases by ≈0.06.` },
+];
+
+function exprReset() {
+  EXPR.step = -1;
+  document.getElementById('expr_explain').innerHTML = 'Press <strong>Next Step</strong> to walk through backprop on the simple expression.';
+  exprDraw({}, null);
+}
+
+function exprStep() {
+  EXPR.step = Math.min(EXPR.step+1, EXPR_STEPS.length-1);
+  const s = EXPR_STEPS[EXPR.step];
+  document.getElementById('expr_explain').innerHTML =
+    '<strong style="color:#34d399">' + s.title + '</strong><br>' + s.body;
+  exprDraw(s.grads, s.active);
+}
+
+function exprDraw(grads, activeId) {
+  const canvas = document.getElementById('cv_expr'); if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=720, H=180; canvas.width=W; canvas.height=H;
+  ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,W,H);
+  const cy=80;
+
+  // arrows
+  for (let i=0; i<EXPR_NODES.length-1; i++) {
+    const from=EXPR_NODES[i], to=EXPR_NODES[i+1];
+    const lit = grads[from.id]!=null && grads[to.id]!=null;
+    ctx.strokeStyle = lit ? '#34d399' : '#1e3a5f';
+    ctx.lineWidth=2.5; ctx.setLineDash(lit?[]:[5,4]);
+    ctx.beginPath(); ctx.moveTo(from.x-32,cy); ctx.lineTo(to.x+32,cy); ctx.stroke();
+    ctx.setLineDash([]);
+    if (lit) {
+      ctx.fillStyle='#34d399';
+      ctx.beginPath(); ctx.moveTo(to.x+32,cy);
+      ctx.lineTo(to.x+42,cy-5); ctx.lineTo(to.x+42,cy+5); ctx.closePath(); ctx.fill();
+    }
+  }
+
+  // nodes
+  EXPR_NODES.forEach(node => {
+    const isActive = node.id===activeId;
+    const hasGrad  = grads[node.id]!=null;
+    const isOp     = node.val==='node';
+    const r = isOp ? 26 : 30;
+    ctx.fillStyle = isActive ? '#0e2a1a' : '#0a1f2a';
+    ctx.beginPath(); ctx.arc(node.x,cy,r,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = isActive ? '#34d399' : (hasGrad?'#34d399':'#334155');
+    ctx.lineWidth = isActive?3:1.5; ctx.stroke();
+    ctx.fillStyle = isActive?'#34d399':'#e2e8f0';
+    ctx.font='bold 11px monospace'; ctx.textAlign='center';
+    ctx.fillText(node.label,node.x,cy-6);
+    if (node.val!=='node') { ctx.fillStyle='#a855f7'; ctx.font='10px monospace'; ctx.fillText(node.val,node.x,cy+8); }
+    if (hasGrad && grads[node.id]) {
+      ctx.fillStyle='#34d399'; ctx.font='bold 11px monospace';
+      ctx.fillText('∇'+grads[node.id],node.x,cy+22);
+    }
+    ctx.fillStyle='#475569'; ctx.font='9px monospace';
+    ctx.fillText({L:'LOSS',df:'×',d:'d',ec:'+',e:'e',ab:'×'}[node.id]||'',node.x,cy-r-8);
+  });
+  // input labels at bottom
+  if (grads['a']) { ctx.fillStyle='#34d399'; ctx.font='10px monospace'; ctx.textAlign='center'; ctx.fillText('a=2 ∇'+grads['a'], 55, cy+42); }
+  if (grads['b']) { ctx.fillStyle='#34d399'; ctx.font='10px monospace'; ctx.fillText('b=−3 ∇'+grads['b'],120, cy+42); }
+  if (grads['c']) { ctx.fillStyle='#34d399'; ctx.font='10px monospace'; ctx.fillText('c=10 ∇'+grads['c'],270, cy+42); }
+  ctx.fillStyle='#60a5fa'; ctx.font='10px monospace'; ctx.textAlign='left';
+  ctx.fillText('← gradients flow this way', 10, H-10);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 9 — MLP architecture diagram
+// ═══════════════════════════════════════════════════════════════
+function drawMLP() {
+  const canvas = document.getElementById('cv_mlp'); if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=720, H=280; canvas.width=W; canvas.height=H;
+  ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,W,H);
+
+  const layers = [
+    { x:80,  n:2, color:'#a855f7', label:'Inputs' },
+    { x:270, n:4, color:'#3b82f6', label:'Layer 1 (4)' },
+    { x:460, n:4, color:'#3b82f6', label:'Layer 2 (4)' },
+    { x:640, n:1, color:'#10b981', label:'Output' },
+  ];
+  const r=18;
+
+  // draw connections first (behind nodes)
+  for (let li=0; li<layers.length-1; li++) {
+    const from=layers[li], to=layers[li+1];
+    const fromYs=nodeYs(from.n,H), toYs=nodeYs(to.n,H);
+    fromYs.forEach(fy => toYs.forEach(ty => {
+      ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=1; ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(from.x+r,fy); ctx.lineTo(to.x-r,ty); ctx.stroke();
+    }));
+  }
+
+  // draw nodes
+  layers.forEach(layer => {
+    const ys=nodeYs(layer.n,H);
+    ys.forEach((y,i) => {
+      ctx.fillStyle='#0a1225';
+      ctx.beginPath(); ctx.arc(layer.x,y,r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=layer.color; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle=layer.color; ctx.font='bold 10px monospace'; ctx.textAlign='center';
+      const lbl = layer.label==='Inputs' ? ['x₁','x₂'][i] : (layer.label==='Output' ? 'ŷ' : 'h');
+      ctx.fillText(lbl,layer.x,y+4);
+    });
+    // layer label
+    ctx.fillStyle='#64748b'; ctx.font='11px monospace'; ctx.textAlign='center';
+    ctx.fillText(layer.label,layer.x,H-8);
+  });
+
+  // weight label on a connection
+  ctx.fillStyle='#fbbf24'; ctx.font='10px monospace'; ctx.textAlign='center';
+  ctx.fillText('w',175,nodeYs(2,H)[0]-8);
+  ctx.fillStyle='#94a3b8'; ctx.font='9px monospace';
+  ctx.fillText('each line = one weight',370,18);
+}
+
+function nodeYs(n,H) {
+  const pad=40, gap=(H-2*pad)/(n>1?n-1:1);
+  return Array.from({length:n},(_,i)=>n===1?H/2:pad+i*gap);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 10 — MLP architecture for the concrete example
+// ═══════════════════════════════════════════════════════════════
+function drawMLP10() {
+  const canvas = document.getElementById('cv_mlp10'); if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=720, H=380; canvas.width=W; canvas.height=H;
+  ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,W,H);
+
+  // Layout
+  const lx = [72, 240, 470, 648];  // x positions of layers
+  const r = 22;
+
+  // Node y positions
+  function ys(n, topPad, btmPad) {
+    const avail = H - topPad - btmPad;
+    if (n===1) return [topPad + avail/2];
+    return Array.from({length:n}, (_,i) => topPad + i*(avail/(n-1)));
+  }
+
+  const inYs  = ys(3, 60, 60);   // inputs
+  const l1Ys  = ys(4, 40, 50);   // layer 1
+  const l2Ys  = ys(4, 40, 50);   // layer 2
+  const outYs = ys(1, 40, 50);   // output
+
+  // Concrete weights: input→h₁₁ only (neuron 1 in layer 1)
+  const w_to_h11 = ['w₁=0.5','w₂=−0.3','w₃=0.8'];
+  const x_vals   = [2, 3, -1];
+  const contribs = ['2×0.5=1.0','3×(−0.3)=−0.9','(−1)×0.8=−0.8'];
+
+  // ── draw all connections (dim) ────────────────────────────────
+  [[inYs,lx[0],l1Ys,lx[1]],[l1Ys,lx[1],l2Ys,lx[2]],[l2Ys,lx[2],outYs,lx[3]]].forEach(([fYs,fx,tYs,tx]) => {
+    fYs.forEach(fy => tYs.forEach(ty => {
+      ctx.strokeStyle='#1a3a5f'; ctx.lineWidth=0.8; ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(fx+r,fy); ctx.lineTo(tx-r,ty); ctx.stroke();
+    }));
+  });
+
+  // ── highlight all 3 connections → h₁₁ in gold ────────────────
+  inYs.forEach((fy, i) => {
+    const ty = l1Ys[0];
+    ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2.5; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(lx[0]+r,fy); ctx.lineTo(lx[1]-r,ty); ctx.stroke();
+
+    // weight label at midpoint
+    const mx = (lx[0]+r + lx[1]-r)/2 - 10;
+    const my = (fy + ty)/2;
+    // weight badge
+    ctx.fillStyle='#1a1200'; ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1;
+    const bw=72, bh=28;
+    rrect10(ctx, mx-bw/2, my-bh/2, bw, bh, 5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#fbbf24'; ctx.font='bold 9px monospace'; ctx.textAlign='center';
+    ctx.fillText(w_to_h11[i], mx, my-4);
+    ctx.fillStyle='#10b981'; ctx.font='9px monospace';
+    ctx.fillText(contribs[i], mx, my+9);
+  });
+
+  // ── bias badge on h₁₁ ────────────────────────────────────────
+  ctx.fillStyle='#2a1a00'; ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1;
+  rrect10(ctx, lx[1]+r+4, l1Ys[0]-12, 54, 22, 4); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#fbbf24'; ctx.font='bold 9px monospace'; ctx.textAlign='left';
+  ctx.fillText('b=0.1', lx[1]+r+8, l1Ys[0]+3);
+
+  // sum & tanh label below h₁₁
+  ctx.fillStyle='#94a3b8'; ctx.font='9px monospace'; ctx.textAlign='center';
+  ctx.fillText('n=1.0−0.9−0.8+0.1=−0.6', lx[1], l1Ys[0]+r+14);
+  ctx.fillStyle='#fbbf24';
+  ctx.fillText('tanh(−0.6)≈−0.537', lx[1], l1Ys[0]+r+26);
+
+  // ── other layer-1 neurons: show "own wts" label ──────────────
+  [1,2,3].forEach(i => {
+    ctx.fillStyle='#64748b'; ctx.font='8px monospace'; ctx.textAlign='center';
+    ctx.fillText('own w₁,w₂,w₃,b', lx[1], l1Ys[i]+r+13);
+  });
+
+  // ── layer 2 weight note ───────────────────────────────────────
+  ctx.fillStyle='#3b82f6'; ctx.font='8px monospace'; ctx.textAlign='center';
+  ctx.fillText('4 weights each', (lx[1]+lx[2])/2, l1Ys[1]-10);
+  ctx.fillText('(one per L1 output)', (lx[1]+lx[2])/2, l1Ys[1]+2);
+
+  // ── draw all nodes ────────────────────────────────────────────
+  const nodeDefs = [
+    { ys:inYs,  x:lx[0], color:'#a855f7', labels:['x₁=2','x₂=3','x₃=−1'] },
+    { ys:l1Ys,  x:lx[1], color:'#3b82f6', labels:['h₁₁','h₁₂','h₁₃','h₁₄'] },
+    { ys:l2Ys,  x:lx[2], color:'#3b82f6', labels:['h₂₁','h₂₂','h₂₃','h₂₄'] },
+    { ys:outYs, x:lx[3], color:'#10b981', labels:['ŷ'] },
+  ];
+
+  nodeDefs.forEach(layer => {
+    layer.ys.forEach((y,i) => {
+      const isH11 = layer.x===lx[1] && i===0;
+      ctx.fillStyle = isH11 ? '#0e1f0a' : '#0a1225';
+      ctx.beginPath(); ctx.arc(layer.x, y, r, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = isH11 ? '#fbbf24' : layer.color;
+      ctx.lineWidth = isH11 ? 2.5 : 1.5; ctx.stroke();
+      ctx.fillStyle = isH11 ? '#fbbf24' : layer.color;
+      ctx.font = 'bold 10px monospace'; ctx.textAlign='center';
+      ctx.fillText(layer.labels[i], layer.x, y+4);
+    });
+  });
+
+  // ── layer labels ──────────────────────────────────────────────
+  const layerNames = ['Inputs','Layer 1 — 4 neurons','Layer 2 — 4 neurons','Output'];
+  lx.forEach((x,i) => {
+    ctx.fillStyle='#64748b'; ctx.font='10px monospace'; ctx.textAlign='center';
+    ctx.fillText(layerNames[i], x, H-8);
+  });
+
+  // ── legend ────────────────────────────────────────────────────
+  ctx.fillStyle='#fbbf24'; ctx.font='10px monospace'; ctx.textAlign='left';
+  ctx.fillText('── highlighted: all weights feeding into h₁₁', 10, 18);
+  ctx.fillStyle='#1a3a5f'; ctx.fillRect(10,28,30,2);
+  ctx.fillStyle='#64748b'; ctx.font='10px monospace';
+  ctx.fillText('other connections (each also has its own weight)', 46, 33);
+}
+
+function rrect10(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHAPTER 11 — training loop simulation
+// ═══════════════════════════════════════════════════════════════
+const TRAIN = { losses:[], step:0, weights:null };
+
+function trainReset() {
+  // simple 2-input 1-output network, 4 training examples
+  // we simulate a toy loss curve rather than full forward pass
+  TRAIN.losses = [];
+  TRAIN.step = 0;
+  // simulate starting loss ~4, decaying
+  TRAIN.baseLoss = 4.0 + Math.random()*0.5;
+  document.getElementById('train_status').textContent = 'Ready — press Run to train';
+  trainDraw();
+}
+
+function trainRun() {
+  const steps=50;
+  for (let i=0; i<steps; i++) {
+    const t = TRAIN.step + i;
+    // realistic noisy loss decay
+    const loss = TRAIN.baseLoss * Math.exp(-0.05*t) + 0.02 + (Math.random()-0.5)*0.04*Math.exp(-0.02*t);
+    TRAIN.losses.push(Math.max(0.01, loss));
+  }
+  TRAIN.step += steps;
+  const last = TRAIN.losses[TRAIN.losses.length-1];
+  document.getElementById('train_status').textContent =
+    'Step ' + TRAIN.step + ' · Loss = ' + last.toFixed(4) + (last < 0.05 ? ' ✅ converged!' : ' — still learning…');
+  trainDraw();
+}
+
+function trainDraw() {
+  const canvas = document.getElementById('cv_train'); if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=720, H=200; canvas.width=W; canvas.height=H;
+  ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,W,H);
+
+  const pad={l:50,r:20,t:20,b:40};
+  const iW=W-pad.l-pad.r, iH=H-pad.t-pad.b;
+
+  // axes
+  ctx.strokeStyle='#334155'; ctx.lineWidth=1; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+iH); ctx.lineTo(pad.l+iW,pad.t+iH); ctx.stroke();
+
+  // axis labels
+  ctx.fillStyle='#64748b'; ctx.font='11px monospace'; ctx.textAlign='center';
+  ctx.fillText('Training Step',pad.l+iW/2,H-5);
+  ctx.save(); ctx.translate(14,pad.t+iH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Loss',0,0); ctx.restore();
+
+  if (TRAIN.losses.length === 0) {
+    ctx.fillStyle='#334155'; ctx.font='13px monospace'; ctx.textAlign='center';
+    ctx.fillText('Press Run to start training…',pad.l+iW/2,pad.t+iH/2); return;
+  }
+
+  const maxL = Math.max(...TRAIN.losses.slice(0,1))*1.1;
+  const N = TRAIN.losses.length;
+
+  // grid lines
+  ctx.strokeStyle='#1e293b'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  [0.25,0.5,0.75,1.0].forEach(f => {
+    const y=pad.t+iH*(1-f);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+iW,y); ctx.stroke();
+    ctx.fillStyle='#475569'; ctx.font='9px monospace'; ctx.textAlign='right';
+    ctx.fillText((maxL*f).toFixed(2),pad.l-4,y+4);
+  });
+  ctx.setLineDash([]);
+
+  // loss curve
+  ctx.strokeStyle='#60a5fa'; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  TRAIN.losses.forEach((l,i) => {
+    const x=pad.l+i/(Math.max(N-1,1))*iW;
+    const y=pad.t+iH*(1-Math.min(l/maxL,1));
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // current point
+  const lastL=TRAIN.losses[N-1];
+  const lx=pad.l+iW, ly=pad.t+iH*(1-Math.min(lastL/maxL,1));
+  ctx.fillStyle='#10b981'; ctx.beginPath(); ctx.arc(lx,ly,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#10b981'; ctx.font='bold 11px monospace'; ctx.textAlign='left';
+  ctx.fillText(lastL.toFixed(4),lx+8,ly+4);
+}
+
+window.onload = function () {
+  ch1Update();
+  drawSlopeSigns();
+  slopeSignUpdate();
+  gdUpdate();
+  limUpdate();
+  nudgeUpdate();
+  roomUpdate();
+  pizzaUpdate();
+  gradUpdate();
+  chainUpdate();
+  gdReset();
+  neuronReset();
+  bpReset();
+  drawAnatomy();
+  exprReset();
+  drawMLP();
+  trainReset();
+  drawMLP10();
+  // unlock all chapters so user can navigate freely
+  for (let i=1;i<=11;i++){const c=$("ch"+i);if(c){c.classList.remove("locked");c.style.opacity="1";c.style.pointerEvents="auto";c.style.filter="none";}}
+};
+</script>
+
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 8 — SIMPLE EXPRESSION BACKPROP
+══════════════════════════════════════════ -->
+<div class="chapter" id="ch8" style="border-color:#1a3a2a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#0a1a10,#0a2a18)">
+    <div class="ch-icon">🧮</div>
+    <div>
+      <div class="ch-label" style="color:#34d399">Chapter 8</div>
+      <div class="ch-title">Backprop Through a Simple Expression</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 🧮</h3>
+      <p>Before backprop through a whole neuron, let's do it through the simplest possible expression — just a few operations chained together. This is exactly what Karpathy does first in the video.</p>
+      <p>The expression — written as one line:</p>
+      <div class="code-box" style="text-align:center;font-size:1.05rem">
+        <span style="color:#fbbf24">L = (a × b + c) × f</span>
+      </div>
+      <p>With values: <code>a=2, b=−3, c=10, f=−2</code></p>
+      <p>Karpathy names each intermediate result so every operation is visible:</p>
+      <div class="code-box">
+        e = a × b &nbsp;&nbsp;&nbsp;&nbsp;= 2 × (−3) &nbsp;&nbsp;&nbsp;= <span style="color:#a855f7">−6</span><br>
+        d = e + c &nbsp;&nbsp;&nbsp;&nbsp;= −6 + 10 &nbsp;&nbsp;&nbsp;= <span style="color:#a855f7">4</span><br>
+        L = d × f &nbsp;&nbsp;&nbsp;&nbsp;= 4 × (−2) &nbsp;&nbsp;&nbsp;= <span style="color:#a855f7">−8</span>
+      </div>
+      <p>Now backprop: <em>how does L change if we nudge a, b, c, or f?</em></p>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🔁 Expression Backprop — Step by Step</div>
+      <canvas id="cv_expr" width="720" height="180"></canvas>
+      <div style="display:flex;gap:.6rem;margin-top:.6rem;flex-wrap:wrap">
+        <button class="btn-p" onclick="exprStep()">Next Step ▶</button>
+        <button class="btn-s" onclick="exprReset()">↺ Reset</button>
+      </div>
+      <div id="expr_explain" style="margin-top:.6rem;background:var(--code);border-radius:8px;padding:.75rem 1rem;font-size:.88rem;line-height:1.9"></div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>🧮 Full walkthrough</h3>
+      <div class="code-box">
+        <span style="color:#94a3b8"># Forward pass</span><br>
+        e = a × b = 2 × (−3) = <span style="color:#a855f7">−6</span><br>
+        d = e + c = −6 + 10  = <span style="color:#a855f7">4</span><br>
+        L = d × f = 4 × (−2) = <span style="color:#a855f7">−8</span><br><br>
+        <span style="color:#94a3b8"># Backward pass — seed</span><br>
+        dL/dL = <span style="color:#10b981">1.0</span><br><br>
+        <span style="color:#94a3b8"># At L = d × f</span><br>
+        dL/dd = f = <span style="color:#10b981">−2</span> &nbsp;·&nbsp; dL/df = d = <span style="color:#10b981">4</span><br><br>
+        <span style="color:#94a3b8"># At d = e + c (addition → gradient passes through)</span><br>
+        dL/de = dL/dd × 1 = <span style="color:#10b981">−2</span> &nbsp;·&nbsp; dL/dc = dL/dd × 1 = <span style="color:#10b981">−2</span><br><br>
+        <span style="color:#94a3b8"># At e = a × b</span><br>
+        dL/da = dL/de × de/da &nbsp;&nbsp;<span style="color:#64748b">← full chain: L→d→e→a</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= dL/de &nbsp;× b &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b">← de/da = b (other operand stays)</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= −2 &nbsp;&nbsp;&nbsp;× (−3) = <span style="color:#10b981">6</span><br><br>
+        dL/db = dL/de × de/db &nbsp;&nbsp;<span style="color:#64748b">← full chain: L→d→e→b</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= dL/de &nbsp;× a &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b">← de/db = a (other operand stays)</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= −2 &nbsp;&nbsp;&nbsp;× 2 &nbsp;&nbsp;&nbsp;= <span style="color:#10b981">−4</span><br><br>
+        <span style="color:#94a3b8"># Written out fully for dL/da:</span><br>
+        dL/da = dL/dL × dL/dd × dd/de × de/da<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= &nbsp;&nbsp;1 &nbsp;&nbsp;× (−2) × &nbsp;&nbsp;1 &nbsp;&nbsp;× (−3) = <span style="color:#10b981">6</span>
+      </div>
+
+      <h3 style="margin-top:1rem">Step-by-step partials for dL/da</h3>
+      <table style="width:100%;border-collapse:collapse;font-family:monospace;font-size:.88rem;margin-top:.4rem">
+        <thead>
+          <tr style="border-bottom:2px solid #334155">
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Step</th>
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Expression</th>
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Partial</th>
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.5rem .75rem;color:#fbbf24">1</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">L = d × f</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">∂L/∂d = f</td>
+            <td style="padding:.5rem .75rem;color:#10b981">−2</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.5rem .75rem;color:#fbbf24">2</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">d = e + c</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">∂d/∂e = 1</td>
+            <td style="padding:.5rem .75rem;color:#10b981">1</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.5rem .75rem;color:#fbbf24">3</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">e = a × b</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">∂e/∂a = b</td>
+            <td style="padding:.5rem .75rem;color:#10b981">−3</td>
+          </tr>
+          <tr style="background:#0f2a1a">
+            <td style="padding:.5rem .75rem;color:#fbbf24">Chain</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">∂L/∂a = ∂L/∂d × ∂d/∂e × ∂e/∂a</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">= (−2) × 1 × (−3)</td>
+            <td style="padding:.5rem .75rem;color:#34d399;font-weight:700">= 6</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:1rem">Same table for dL/db</h3>
+      <table style="width:100%;border-collapse:collapse;font-family:monospace;font-size:.88rem;margin-top:.4rem">
+        <thead>
+          <tr style="border-bottom:2px solid #334155">
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Step</th>
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Expression</th>
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Partial</th>
+            <th style="text-align:left;padding:.5rem .75rem;color:#94a3b8;font-weight:600">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.5rem .75rem;color:#fbbf24">1</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">L = d × f</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">∂L/∂d = f</td>
+            <td style="padding:.5rem .75rem;color:#10b981">−2</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.5rem .75rem;color:#fbbf24">2</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">d = e + c</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">∂d/∂e = 1</td>
+            <td style="padding:.5rem .75rem;color:#10b981">1</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.5rem .75rem;color:#fbbf24">3</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">e = a × b</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">∂e/∂b = a</td>
+            <td style="padding:.5rem .75rem;color:#10b981">2</td>
+          </tr>
+          <tr style="background:#0f2a1a">
+            <td style="padding:.5rem .75rem;color:#fbbf24">Chain</td>
+            <td style="padding:.5rem .75rem;color:#e2e8f0">∂L/∂b = ∂L/∂d × ∂d/∂e × ∂e/∂b</td>
+            <td style="padding:.5rem .75rem;color:#60a5fa">= (−2) × 1 × 2</td>
+            <td style="padding:.5rem .75rem;color:#34d399;font-weight:700">= −4</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:.6rem">Read: "nudging <code>a</code> by +0.01 increases L by ≈ 6×0.01 = 0.06." Nudging <code>b</code> by +0.01 <em>decreases</em> L by 0.04.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">💡</div>
+      <div class="insight-text">
+        <strong>The three rules, demonstrated here:</strong><br>
+        <strong>Multiplication node:</strong> each input's gradient = the other input × incoming gradient.<br>
+        <strong>Addition node:</strong> gradient passes through to both inputs unchanged.<br>
+        <strong>Any node:</strong> local gradient × incoming gradient = outgoing gradient. That's the chain rule.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 9 — MLP
+══════════════════════════════════════════ -->
+<div class="chapter" id="ch9" style="border-color:#2a1a3a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#12081a,#1a0a28)">
+    <div class="ch-icon">🏗️</div>
+    <div>
+      <div class="ch-label" style="color:#a855f7">Chapter 9</div>
+      <div class="ch-title">MLP — From One Neuron to a Network</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 🏗️</h3>
+      <p>One neuron can only draw one straight-ish decision boundary. To solve complex problems you need many neurons, organised into <strong>layers</strong>, stacked into a <strong>network</strong>.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin:.75rem 0;text-align:center;font-size:.85rem">
+        <div class="card-purple" style="padding:.75rem">
+          <div style="font-size:1.3rem">🔵</div>
+          <strong style="color:#a855f7">Neuron</strong>
+          <div style="color:#94a3b8;margin-top:.3rem">takes N inputs<br>produces 1 output<br>has N weights + 1 bias</div>
+        </div>
+        <div class="card-blue" style="padding:.75rem">
+          <div style="font-size:1.3rem">🔵🔵🔵</div>
+          <strong style="color:#3b82f6">Layer</strong>
+          <div style="color:#94a3b8;margin-top:.3rem">M neurons in parallel<br>each sees all inputs<br>produces M outputs</div>
+        </div>
+        <div class="card-green" style="padding:.75rem">
+          <div style="font-size:1.3rem">🏗️</div>
+          <strong style="color:#10b981">MLP</strong>
+          <div style="color:#94a3b8;margin-top:.3rem">layers stacked in sequence<br>output of one = input of next<br>can learn complex patterns</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">🏗️ MLP Architecture — 2 inputs → [4 neurons] → [4 neurons] → 1 output</div>
+      <canvas id="cv_mlp" width="720" height="280"></canvas>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Forward pass through an MLP</h3>
+      <p>Each layer feeds the next. The final neuron produces the network's prediction.</p>
+      <div class="code-box">
+        <span style="color:#94a3b8"># Layer 1 — 4 neurons, each sees both inputs</span><br>
+        h1₁ = tanh(x₁w₁₁ + x₂w₁₂ + b₁)<br>
+        h1₂ = tanh(x₁w₂₁ + x₂w₂₂ + b₂)<br>
+        h1₃ = tanh(x₁w₃₁ + x₂w₃₂ + b₃)<br>
+        h1₄ = tanh(x₁w₄₁ + x₂w₄₂ + b₄)<br><br>
+        <span style="color:#94a3b8"># Layer 2 — 4 neurons, each sees all 4 outputs from layer 1</span><br>
+        h2₁ = tanh(h1₁w + h1₂w + h1₃w + h1₄w + b)<br>
+        ...<br><br>
+        <span style="color:#94a3b8"># Output layer — 1 neuron, produces final prediction</span><br>
+        ŷ = tanh(h2₁w + h2₂w + h2₃w + h2₄w + b)
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Backprop through an MLP</h3>
+      <p>The same rules as a single neuron — just applied more times:</p>
+      <ol style="line-height:2.2;padding-left:1.4rem">
+        <li>Gradient flows <strong>right to left</strong>, one layer at a time</li>
+        <li>Each neuron in a layer gets a gradient from <strong>every neuron in the next layer</strong> that used its output</li>
+        <li>The three rules (multiply, add, tanh) apply at every single node</li>
+        <li>Every weight in the whole network gets its own gradient</li>
+      </ol>
+      <div class="insight" style="margin-top:.75rem">
+        <div class="insight-icon">💡</div>
+        <div class="insight-text">
+          <strong>Why deep networks work:</strong> each layer learns to detect increasingly abstract features.
+          Layer 1 might detect edges, layer 2 corners, layer 3 shapes — the network composes simple detectors into complex understanding.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 10 — DATASET + LOSS FUNCTION
+══════════════════════════════════════════ -->
+<div class="chapter" id="ch10" style="border-color:#2a2a0a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#1a1a08,#28280a)">
+    <div class="ch-icon">📊</div>
+    <div>
+      <div class="ch-label" style="color:#fbbf24">Chapter 10</div>
+      <div class="ch-title">Dataset + Loss Function</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 📊</h3>
+      <p>A neural network without a target is just math. You need:</p>
+      <ol style="line-height:2.2;padding-left:1.4rem">
+        <li><strong>A dataset</strong> — input/output pairs the network should learn to replicate</li>
+        <li><strong>A loss function</strong> — a single number measuring how wrong the network is</li>
+      </ol>
+      <p>Gradient descent then minimises that loss number. The lower it gets, the better the network predicts.</p>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Karpathy's tiny dataset (4 examples)</h3>
+      <div class="code-box">
+        <span style="color:#94a3b8"># inputs        &nbsp;&nbsp;&nbsp;targets</span><br>
+        xs = [ [2.0,  3.0, −1.0],  &nbsp;&nbsp; ys = [1.0,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[3.0, −1.0,  0.5],  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;−1.0,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0.5,  1.0,  1.0],  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;−1.0,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1.0,  1.0, −1.0] ]  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.0]
+      </div>
+      <p>4 examples, 3 inputs each, 1 target each. The targets are ±1 — like a binary classifier (yes/no, cat/dog).</p>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>The loss function — Mean Squared Error (MSE)</h3>
+      <p>For each example, compare the network's prediction (ŷ) to the target (y). Square the difference (so negatives don't cancel). Average across all examples:</p>
+      <div class="code-box" style="text-align:center">
+        Loss = (1/N) × Σ (ŷᵢ − yᵢ)²
+      </div>
+      <p>Why square? Two reasons:</p>
+      <ul style="line-height:2.2;padding-left:1.4rem">
+        <li>Makes all errors positive (wrong by +0.5 or −0.5 both contribute 0.25)</li>
+        <li>Penalises large errors more — being off by 2 contributes 4×, not 2×</li>
+      </ul>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin:.75rem 0;text-align:center;font-size:.85rem">
+        <div class="card-green" style="padding:.6rem"><strong style="color:#10b981">Loss = 0.0</strong><div style="color:#94a3b8">perfect — every prediction exactly right</div></div>
+        <div class="card-yellow" style="padding:.6rem"><strong style="color:#fbbf24">Loss = 0.1</strong><div style="color:#94a3b8">good — small average error</div></div>
+        <div class="card-red" style="padding:.6rem"><strong style="color:#ef4444">Loss = 4.0</strong><div style="color:#94a3b8">bad — predictions far off</div></div>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Why do you need multiple examples?</h3>
+      <div class="insight">
+        <div class="insight-icon">🎯</div>
+        <div class="insight-text">
+          With <strong>one example</strong>: the network could memorise it perfectly without learning anything general.<br><br>
+          With <strong>many examples</strong>: the weights must satisfy all of them simultaneously — forcing the network to find the underlying pattern, not just memorise.<br><br>
+          The loss is computed across <em>all</em> examples at once, so every gradient update improves performance on the whole dataset.
+        </div>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>🧮 Concrete example — first row through the network</h3>
+      <p>Input row: <code>x = [2.0, 3.0, −1.0]</code> &nbsp;·&nbsp; Target: <code>y = 1.0</code></p>
+      <p>The network is <strong>3 inputs → Layer 1 (4 neurons) → Layer 2 (4 neurons) → 1 output</strong>.<br>
+      Weights start <strong>randomly initialised</strong> — small numbers drawn from uniform(−1, 1). Let's use concrete values for one neuron:</p>
+
+      <div class="demo" style="margin:.75rem 0">
+        <div class="demo-title">🏗️ This network: 3 inputs → [4 neurons] → [4 neurons] → 1 output</div>
+        <canvas id="cv_mlp10" width="720" height="380"></canvas>
+        <p style="color:var(--muted);font-size:.82rem;margin-top:.4rem;text-align:center">
+          Each arrow = one weight (w). Every neuron in a layer receives ALL outputs from the previous layer.
+        </p>
+      </div>
+
+      <p style="margin-top:.75rem"><strong>Layer 1, Neuron 1 — forward pass:</strong></p>
+      <table style="width:100%;border-collapse:collapse;font-family:monospace;font-size:.87rem;margin-top:.3rem">
+        <thead>
+          <tr style="border-bottom:2px solid #334155">
+            <th style="text-align:left;padding:.45rem .7rem;color:#94a3b8">What</th>
+            <th style="text-align:left;padding:.45rem .7rem;color:#94a3b8">Calculation</th>
+            <th style="text-align:left;padding:.45rem .7rem;color:#94a3b8">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#e2e8f0">Weights (random)</td>
+            <td style="padding:.45rem .7rem;color:#a855f7">w₁=0.5, w₂=−0.3, w₃=0.8, b=0.1</td>
+            <td style="padding:.45rem .7rem;color:#94a3b8">drawn once at init</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#e2e8f0">Weighted sum n</td>
+            <td style="padding:.45rem .7rem;color:#a855f7">2×0.5 + 3×(−0.3) + (−1)×0.8 + 0.1</td>
+            <td style="padding:.45rem .7rem;color:#fbbf24">= −0.6</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#e2e8f0">Activation h₁₁</td>
+            <td style="padding:.45rem .7rem;color:#a855f7">tanh(−0.6)</td>
+            <td style="padding:.45rem .7rem;color:#fbbf24">≈ −0.537</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:.75rem">The other 3 neurons in Layer 1 do the <em>same thing</em> with their own random weights — producing <code>h₁₂, h₁₃, h₁₄</code>. Let's say they give: <code>[−0.537, 0.812, −0.201, 0.634]</code></p>
+
+      <p style="margin-top:.75rem"><strong>Layer 2 — takes all 4 Layer 1 outputs as its inputs:</strong></p>
+      <div class="code-box">
+        <span style="color:#94a3b8"># Each neuron has its OWN set of 4 weights (one per input from L1) + bias</span><br>
+        h2₁ = tanh(h₁₁×<span style="color:#10b981">w₂₁₁</span> + h₁₂×<span style="color:#10b981">w₂₁₂</span> + h₁₃×<span style="color:#10b981">w₂₁₃</span> + h₁₄×<span style="color:#10b981">w₂₁₄</span> + <span style="color:#fbbf24">b₂₁</span>)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;= tanh(−0.537×<span style="color:#10b981">0.6</span> + 0.812×<span style="color:#10b981">(−0.4)</span> + (−0.201)×<span style="color:#10b981">0.7</span> + 0.634×<span style="color:#10b981">0.2</span> + <span style="color:#fbbf24">0.0</span>)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;= tanh(−0.322 − 0.325 − 0.141 + 0.127 + 0.0)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;= tanh(−0.661) ≈ <span style="color:#fbbf24">−0.578</span><br><br>
+        <span style="color:#64748b">w₂₁₁ means: Layer 2, Neuron 1, Weight 1 — one unique weight per connection</span>
+      </div>
+      <p>All 4 neurons in Layer 2 do this → producing <code>[0.42, −0.31, 0.67, 0.15]</code></p>
+
+      <p style="margin-top:.75rem"><strong>Output neuron — takes all 4 Layer 2 outputs:</strong></p>
+      <div class="code-box">
+        <span style="color:#94a3b8"># Output neuron has 4 weights (one per Layer 2 neuron) + bias</span><br>
+        ŷ = tanh(h2₁×<span style="color:#10b981">w_o1</span> + h2₂×<span style="color:#10b981">w_o2</span> + h2₃×<span style="color:#10b981">w_o3</span> + h2₄×<span style="color:#10b981">w_o4</span> + <span style="color:#fbbf24">b_o</span>)<br>
+        &nbsp;&nbsp;= tanh(−0.578×<span style="color:#10b981">0.3</span> + (−0.31)×<span style="color:#10b981">(−0.5)</span> + 0.67×<span style="color:#10b981">0.4</span> + 0.15×<span style="color:#10b981">(−0.2)</span> + <span style="color:#fbbf24">0.1</span>)<br>
+        &nbsp;&nbsp;= tanh(−0.173 + 0.155 + 0.268 − 0.030 + 0.1)<br>
+        &nbsp;&nbsp;= tanh(0.320) ≈ <span style="color:#ef4444">0.311</span>
+      </div>
+
+      <p style="margin-top:.75rem"><strong>Compute loss for this one example:</strong></p>
+      <div class="code-box" style="text-align:center">
+        loss = (ŷ − y)² = (0.311 − 1.0)² = (−0.689)² = <span style="color:#ef4444">0.475</span>
+      </div>
+      <p>That's the network's "wrongness" score for the first example. Sum this across all 4 examples to get the total loss. Then backprop assigns blame to every weight — and gradient descent nudges them all toward a lower loss.</p>
+
+      <div class="insight" style="margin-top:.75rem">
+        <div class="insight-icon">🎲</div>
+        <div class="insight-text">
+          <strong>Why random weights?</strong><br>
+          If all weights started at zero, every neuron in a layer would compute the exact same thing and get the exact same gradient. They'd never specialise. Random init breaks this symmetry — each neuron starts differently and learns to detect something different.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  CHAPTER 11 — FULL TRAINING LOOP
+══════════════════════════════════════════ -->
+<div class="chapter" id="ch11" style="border-color:#1a2a3a">
+  <div class="ch-header" style="background:linear-gradient(135deg,#080e18,#0a1525)">
+    <div class="ch-icon">🔄</div>
+    <div>
+      <div class="ch-label" style="color:#60a5fa">Chapter 11</div>
+      <div class="ch-title">The Full Training Loop</div>
+    </div>
+  </div>
+  <div class="ch-body">
+
+    <div class="story">
+      <h3>The Story 🔄</h3>
+      <p>Everything from Chapters 1–10 feeds into this single loop. Run it hundreds of times and the network learns.</p>
+      <div class="code-box">
+        <span style="color:#94a3b8">for step in range(100):</span><br>
+        <br>
+        &nbsp;&nbsp;<span style="color:#3b82f6"># 1. Forward pass</span><br>
+        &nbsp;&nbsp;ypred = [n(x) for x in xs]<br>
+        <br>
+        &nbsp;&nbsp;<span style="color:#fbbf24"># 2. Compute loss</span><br>
+        &nbsp;&nbsp;loss = sum((yp - ygt)**2 for yp,ygt in zip(ypred,ys))<br>
+        <br>
+        &nbsp;&nbsp;<span style="color:#ef4444"># 3. Backward pass</span><br>
+        &nbsp;&nbsp;loss.backward()<br>
+        <br>
+        &nbsp;&nbsp;<span style="color:#10b981"># 4. Update weights</span><br>
+        &nbsp;&nbsp;for p in n.parameters():<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;p.data -= 0.01 * p.grad<br>
+        <br>
+        &nbsp;&nbsp;<span style="color:#a855f7"># 5. Zero gradients</span><br>
+        &nbsp;&nbsp;for p in n.parameters():<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;p.grad = 0.0
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Why each step exists</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.5rem 0;font-size:.85rem">
+        <div class="card-blue" style="padding:.75rem">
+          <strong style="color:#3b82f6">1. Forward pass</strong>
+          <div style="color:#94a3b8;margin-top:.3rem">Run the network on all inputs. Get predictions. You need these before you can measure how wrong they are.</div>
+        </div>
+        <div class="card-yellow" style="padding:.75rem">
+          <strong style="color:#fbbf24">2. Compute loss</strong>
+          <div style="color:#94a3b8;margin-top:.3rem">One number summarising total wrongness. The lower, the better. This is what gradient descent will minimise.</div>
+        </div>
+        <div class="card-red" style="padding:.75rem">
+          <strong style="color:#ef4444">3. Backward pass</strong>
+          <div style="color:#94a3b8;margin-top:.3rem">Chain rule through the whole network. Every weight gets a gradient — a direction to nudge to reduce loss.</div>
+        </div>
+        <div class="card-green" style="padding:.75rem">
+          <strong style="color:#10b981">4. Update weights</strong>
+          <div style="color:#94a3b8;margin-top:.3rem"><code>w -= lr × grad</code>. Move every weight a small step in the direction that reduces loss.</div>
+        </div>
+      </div>
+      <div class="card-purple" style="padding:.75rem;margin-top:.5rem;font-size:.85rem">
+        <strong style="color:#a855f7">5. Zero gradients</strong>
+        <div style="color:#94a3b8;margin-top:.3rem">Gradients <em>accumulate</em> by default. If you don't reset them, the next backward pass adds to the old ones — giving wrong update directions. Always zero before the next step.</div>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>Why zero gradients? — The full picture</h3>
+      <p>When you call <code>backward()</code>, micrograd does <code>p.grad += local_gradient</code> — it <strong>adds</strong>, it does not overwrite. This is intentional: if a weight is used in multiple places in the graph, all its contributions should sum together.</p>
+      <p>But it causes a problem across steps:</p>
+
+      <table style="width:100%;border-collapse:collapse;font-family:monospace;font-size:.86rem;margin:.5rem 0">
+        <thead>
+          <tr style="border-bottom:2px solid #334155">
+            <th style="text-align:left;padding:.45rem .7rem;color:#94a3b8">Step</th>
+            <th style="text-align:left;padding:.45rem .7rem;color:#94a3b8">Without zeroing ❌</th>
+            <th style="text-align:left;padding:.45rem .7rem;color:#94a3b8">With zeroing ✅</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#fbbf24">Before step 1</td>
+            <td style="padding:.45rem .7rem;color:#e2e8f0">w.grad = 0.0</td>
+            <td style="padding:.45rem .7rem;color:#e2e8f0">w.grad = 0.0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#fbbf24">After backward() step 1</td>
+            <td style="padding:.45rem .7rem;color:#e2e8f0">w.grad = 6.0</td>
+            <td style="padding:.45rem .7rem;color:#e2e8f0">w.grad = 6.0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#fbbf24">Update step 1</td>
+            <td style="padding:.45rem .7rem;color:#e2e8f0">w -= 0.01 × 6.0 ✓</td>
+            <td style="padding:.45rem .7rem;color:#e2e8f0">w -= 0.01 × 6.0 ✓</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#fbbf24">Zero grad?</td>
+            <td style="padding:.45rem .7rem;color:#ef4444">❌ w.grad still = 6.0</td>
+            <td style="padding:.45rem .7rem;color:#10b981">✅ w.grad reset to 0.0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b">
+            <td style="padding:.45rem .7rem;color:#fbbf24">After backward() step 2</td>
+            <td style="padding:.45rem .7rem;color:#ef4444">w.grad = 6.0 + 5.8 = 11.8 ❌</td>
+            <td style="padding:.45rem .7rem;color:#10b981">w.grad = 0.0 + 5.8 = 5.8 ✅</td>
+          </tr>
+          <tr style="background:#1a0a0a">
+            <td style="padding:.45rem .7rem;color:#fbbf24">Update step 2</td>
+            <td style="padding:.45rem .7rem;color:#ef4444">w -= 0.01 × 11.8 ← wrong! uses stale grad</td>
+            <td style="padding:.45rem .7rem;color:#10b981">w -= 0.01 × 5.8 ← correct</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>After 10 steps without zeroing, <code>w.grad</code> is the sum of all 10 gradients — a completely corrupted signal. The network would thrash wildly instead of converging.</p>
+
+      <div class="code-box">
+        <span style="color:#94a3b8"># The correct order every single step:</span><br>
+        p.grad = 0.0 &nbsp;&nbsp;&nbsp;<span style="color:#475569">← clean slate</span><br>
+        loss.backward() &nbsp;<span style="color:#475569">← writes fresh gradient</span><br>
+        p.data -= lr * p.grad &nbsp;<span style="color:#475569">← correct update</span>
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-title">📉 Watch the loss decrease</div>
+      <canvas id="cv_train" width="720" height="200"></canvas>
+      <div style="display:flex;gap:.6rem;margin-top:.6rem;flex-wrap:wrap;align-items:center">
+        <button class="btn-p" onclick="trainRun()">▶ Run 50 Steps</button>
+        <button class="btn-s" onclick="trainReset()">↺ Reset</button>
+        <span style="color:var(--muted);font-size:.85rem" id="train_status">Ready — press Run to train</span>
+      </div>
+    </div>
+
+    <div class="story" style="margin-top:0">
+      <h3>What happens to loss over time?</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin:.5rem 0;text-align:center;font-size:.85rem">
+        <div class="card-red" style="padding:.6rem"><strong style="color:#ef4444">Early steps</strong><div style="color:#94a3b8">Loss high, gradients large, weights changing fast</div></div>
+        <div class="card-yellow" style="padding:.6rem"><strong style="color:#fbbf24">Mid training</strong><div style="color:#94a3b8">Loss falling, gradients smaller, converging toward a minimum</div></div>
+        <div class="card-green" style="padding:.6rem"><strong style="color:#10b981">Late training</strong><div style="color:#94a3b8">Loss low and flat — network has learned, gradients near zero</div></div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">🗺️</div>
+      <div class="insight-text">
+        <strong>The full picture — everything connected:</strong><br>
+        Derivative (Ch 1) → tells you the slope at a point<br>
+        Partial derivative (Ch 3-4) → slope for one weight at a time<br>
+        Chain rule (Ch 5) → compose slopes through many operations<br>
+        Gradient descent (Ch 6) → use slopes to walk downhill<br>
+        Backprop (Ch 7-8) → compute ALL slopes in one efficient backward pass<br>
+        MLP (Ch 9) → scale to many neurons and layers<br>
+        Loss + dataset (Ch 10) → give the network something to optimise<br>
+        Training loop (Ch 11) → repeat until the network learns ✅
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
